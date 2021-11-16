@@ -20,6 +20,6 @@ public class BaseDriveCommand extends BaseTelemetryCommand{
     @Override
     public void end(boolean interrupted){
         subsystem.drive(new ChassisSpeeds(0,0,0));
-        super.end(interrupted);
+        //super.end(interrupted);
     }
 }
