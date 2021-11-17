@@ -1,0 +1,9 @@
+[
+  {
+    "artifact": "frcJava (in project swerve-template)",
+    "target": "roborio",
+    "debugfile": "frcJava_roborio.debugconfig",
+    "project": "swerve-template",
+    "language": "java"
+  }
+]
