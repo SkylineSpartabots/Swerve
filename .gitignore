@@ -158,6 +158,4 @@ bin/
 imgui.ini
 .idea/
 
-# direnv files
-.envrc
 # End of https://www.gitignore.io/api/c++,java,linux,macos,gradle,windows,visualstudiocode
