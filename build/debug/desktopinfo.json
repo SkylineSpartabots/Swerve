@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Swerve (in project Swerve)",
+    "file": "C:\\Users\\victo\\Documents\\GitHub\\Swerve\\build\\libs\\Swerve.jar",
+    "extensions": [
+      "C:\\Users\\victo\\Documents\\GitHub\\Swerve\\build\\tmp\\expandedArchives\\halsim_gui-2021.3.1-windowsx86-64.zip_323ba05d82fed35fbc1ea2c04141a0a5\\windows\\x86-64\\shared\\halsim_gui.dll",
+      "C:\\Users\\victo\\Documents\\GitHub\\Swerve\\build\\tmp\\expandedArchives\\halsim_ds_socket-2021.3.1-windowsx86-64.zip_5f77b11b08590618ca2ba5550844833c\\windows\\x86-64\\shared\\halsim_ds_socket.dll"
+    ],
+    "env": {},
+    "librarydir": "C:\\Users\\victo\\Documents\\GitHub\\Swerve\\build\\tmp\\jniExtractDir",
+    "mainclass": "frc.robot.Main"
+  }
+]
