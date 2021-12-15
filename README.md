@@ -1,3 +1,20 @@
+### BIG NEWS
+I figured out how to use Driver Station for macOS (and it says it has Linux support as well but I haven't been able to test that). To connect and drive the robot do the following:
+
+1. Download the latest release for your OS at: https://github.com/FRC-Utilities/QDriverStation/releases/tag/v21.04
+
+2. Open the installer (for macOS you'll need to right click and open from the drop down to give admin permissions)
+
+3. Enter in 2967 for the team number under the wrench icon
+
+4. Go to the settings cog on the bottom right corner
+
+5. In the Robot field, enter in the IP Address of the RoboRio: 10.29.76.2, and click Apply and Ok
+
+6. Turn the robot on and connect to the 2976_Swerve WiFi
+
+7. The Communication field should be lit up Green on the Driver Station, if not go back through these steps or reach out to me on Discord.
+
 ### Configuring the code for your robot
 
 1. Set your team number.
