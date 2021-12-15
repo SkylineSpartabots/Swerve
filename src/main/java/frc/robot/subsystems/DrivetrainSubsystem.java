@@ -1,6 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
 
@@ -11,6 +8,7 @@ import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
+import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
@@ -24,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.controller.*;
 import edu.wpi.first.wpilibj.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import static frc.robot.Constants.*;
 
 public class DrivetrainSubsystem extends SubsystemBase {
@@ -82,6 +80,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
   private PIDController m_pidController;
 
+  private static DrivetrainSubsystem m_instance = null;
+  public static DrivetrainSubsystem getInstance(){
+          if(m_instance == null)
+                m_instance = new DrivetrainSubsystem();
+          return m_instance;
+  }
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -136,10 +140,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
             BACK_RIGHT_MODULE_STEER_OFFSET
     );
 
-    int[] pid = getPIDValues();
-    m_pidController = new PIDController(pid[0], pid[1], pid[2]);
+    //int[] pid = getPIDValues();
+    m_pidController = new PIDController(0.1, 0, 0);
 
-    m_pose = new Pose2d(5.0, 13.5, new Rotation2d());
+    m_pose = new Pose2d(0, 0, new Rotation2d());
     m_odometry = new SwerveDriveOdometry(m_kinematics, getGyroscopeRotation(), m_pose);
   }
 
@@ -167,6 +171,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
         return m_pidController;
   }
 
+  public Pose2d getPose(){
+        return m_pose;
+  }
   public void drive(ChassisSpeeds chassisSpeeds) {
     m_chassisSpeeds = chassisSpeeds;
   }
@@ -178,6 +185,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     m_pose = m_odometry.update(getGyroscopeRotation(), states[0], states[1], 
         states[2], states[3]);
+
+    SmartDashboard.putNumber("X Position", m_pose.getTranslation().getX());
+    SmartDashboard.putNumber("Y Position", m_pose.getTranslation().getY());
+    SmartDashboard.putNumber("Rotation", getGyroscopeRotation().getDegrees());
 
     m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
     m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
