@@ -5,8 +5,16 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+
+
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -28,6 +36,13 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    addPeriodic(
+      () -> {
+               DrivetrainSubsystem.getInstance().applyDrive();
+            }, 
+      0.005, // drive at higher frequency
+      0.000);
   }
 
   /**
@@ -56,7 +71,9 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    
+    DrivetrainSubsystem.getInstance().resetOdometry(new Pose2d());
+    m_autonomousCommand = DriveCommandFactory.getAutonomousCommand();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -81,15 +98,34 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    m_robotContainer.driveWithJoystick();
+  }
 
+  private int m_testRounds = 0;
+  private ShuffleboardTab m_testTab;
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+
+    m_testTab = Shuffleboard.getTab("Test");
+    m_testTab.add("Auto", (CommandBase)DriveCommandFactory.getAutonomousCommand());
+    m_testTab.add("DriveTrain", m_robotContainer.getDriveTrainSubsystem());
+    m_testTab.add("Test", "Inited");
+    m_testRounds = 0;
+
+    
+    var voltageTab = Shuffleboard.getTab("VoltageTest");
+    voltageTab.add("SwerveDriveByVoltage", SwerveDriveByVoltage.getInstance());
+    voltageTab.add("Voltage", 0);
+    voltageTab.add("DurationInSec", 1);
+    voltageTab.add("VoltageTestCommand", new VoltageTestCommand());
   }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    m_testTab.add("TestRounds", m_testRounds++);
+  }
 }

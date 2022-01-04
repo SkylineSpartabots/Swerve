@@ -1,16 +1,9 @@
 [
   {
-    "artifact": "frcJava (in project swerve-template-master)",
+    "artifact": "frcJava (in project Swerve20211224)",
     "target": "roborio",
     "debugfile": "frcJava_roborio.debugconfig",
-    "project": "swerve-template-master",
-    "language": "java"
-  },
-  {
-    "artifact": "frcJava (in project Swerve)",
-    "target": "roborio",
-    "debugfile": "frcJava_roborio.debugconfig",
-    "project": "Swerve",
+    "project": "Swerve20211224",
     "language": "java"
   }
 ]
