@@ -25,10 +25,11 @@ public class DriveCommandFactory {
     var command =
       new TrajectoryDriveCommand(
           List.of(
-           // new Translation2d(0.5, 0), 
-           // new Translation2d(1, 0.5)
+            new Translation2d(2, 0),
+            new Translation2d(2, 2),
+            new Translation2d(0,2)
           ),
-          new Pose2d(1, 0.5, new Rotation2d(0)),
+          new Pose2d(0, 0, new Rotation2d(3.1416)),
           true);
     return command;
   }

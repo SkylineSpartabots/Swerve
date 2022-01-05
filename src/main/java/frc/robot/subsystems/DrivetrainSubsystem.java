@@ -173,6 +173,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("X Position", pose.getTranslation().getX());
     SmartDashboard.putNumber("Y Position", pose.getTranslation().getY());
     SmartDashboard.putNumber("Rotation", getGyroscopeRotation().getDegrees());
+    
   }
 
   public void applyDrive() {
