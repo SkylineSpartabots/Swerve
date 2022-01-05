@@ -8,12 +8,14 @@ public class LimelightSubsystem extends SubsystemBase {
     public Object getVar(String varIn) {
         for (String var : this.getVarList) {
             if (var == varIn) {
-                NetworkTableInstance.getDefault().getTable("limelight").getEntry(varIn).getDouble(0);
+                return NetworkTableInstance.getDefault().getTable("limelight").getEntry(varIn).getDouble(0);
             }
         }
     }
 
     public void periodic() {
-
+for (String var : this.getVarList) {
+    
+}
     }
 }
