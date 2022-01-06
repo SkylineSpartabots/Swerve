@@ -1,5 +1,7 @@
+// FIXME Add needed import statements
+
 public class LimelightCommand extends CommandBase {
-    private final LimelightSubsystem m_limelight;
+    private LimelightSubsystem m_limelight;
 
     public LimelightCommand(LimelightSubsystem subsystem) {
         m_limelight = subsystem;
