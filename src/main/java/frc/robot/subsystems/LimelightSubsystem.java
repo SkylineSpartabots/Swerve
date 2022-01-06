@@ -1,5 +1,7 @@
 package src.main.java.frc.robot.subsystems;
 
+
+// FIXME Add needed import statements
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LimelightSubsystem extends SubsystemBase {
@@ -13,9 +15,10 @@ public class LimelightSubsystem extends SubsystemBase {
         }
     }
 
+final ShuffleboardTab tab = Shuffleboard.getTab("Limelight");
+
     public void periodic() {
-for (String var : this.getVarList) {
-    
-}
+
     }
+    
 }
