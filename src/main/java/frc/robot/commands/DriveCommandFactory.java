@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 
 public class DriveCommandFactory {
+  
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -33,6 +34,26 @@ public class DriveCommandFactory {
           true);
     return command;
   }
+
+  public static Command getTurnToTargetCommand(){
+   /* if(!LimelightSubsystem.getInstance().hasTarget()){
+      return null;
+    }*/
+    var rot = DrivetrainSubsystem.getInstance().getGyroscopeRotation();
+    var command =
+    new TrajectoryDriveCommand(
+        List.of(
+          new Translation2d(2, 0),
+          new Translation2d(2, 2),
+          new Translation2d(0,2)
+        ),
+        new Pose2d(0, 0, new Rotation2d(rot.getRadians()-(LimelightSubsystem.getInstance().getXOffset()*3.1416/180))),
+        true);
+    return command;
+    //return new TrajectoryDriveCommand(List.of(), new Pose2d(0,0,new Rotation2d(0.5)), true);
+    //return new TrajectoryDriveCommand(List.of(), new Pose2d(0,0,new Rotation2d(rot.getRadians()-(LimelightSubsystem.getInstance().getXOffset()*3.1416/180))), true);
+  }
+
 
   // use field relative coordinate, move to target.
   public static Command getDriveToCommand(double p_targetX, double p_targetY, double p_targetAngleRad)

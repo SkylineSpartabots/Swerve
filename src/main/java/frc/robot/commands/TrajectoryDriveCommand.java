@@ -44,7 +44,7 @@ public class TrajectoryDriveCommand extends CommandBase {
 
     this.withName("DriveTo_" + p_end.toString());
 
-    m_config = new TrajectoryConfig(2, 1)//speed set to 0.5 m/s, acceleration of 1 m/s
+    m_config = new TrajectoryConfig(0.1, 0.1)//speed set to 0.5 m/s, acceleration of 1 m/s
       // Add kinematics to ensure max speed is actually obeyed
       .setKinematics(DriveConstants.kDriveKinematics);
     
