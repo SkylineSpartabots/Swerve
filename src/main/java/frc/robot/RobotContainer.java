@@ -4,7 +4,7 @@
 
 package frc.robot;
 import frc.robot.subsystems.DrivetrainSubsystem;
-
+import frc.robot.subsystems.LimelightSubsystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -26,12 +26,16 @@ import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private DrivetrainSubsystem m_drivetrainSubsystem;
+  private LimelightSubsystem m_limelight;
   private final XboxController m_controller = new XboxController(0);
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
     m_drivetrainSubsystem = DrivetrainSubsystem.getInstance();
+    m_limelight = LimelightSubsystem.getInstance();
+    m_limelight.init();
 
     m_drivetrainSubsystem.zeroGyroscope();
     // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
