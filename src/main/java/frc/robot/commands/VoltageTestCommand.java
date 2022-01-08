@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
-import frc.robot.subsystems.SwerveDriveByVoltage;
+import frc.robot.subsystems.DrivetrainSubsystem;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.Timer;
@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class VoltageTestCommand extends CommandBase {
   //@SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final SwerveDriveByVoltage m_driveTrain;
+  private final DrivetrainSubsystem m_driveTrain;
 
   private final Timer m_timer = new Timer();
   private final double m_voltage;
@@ -21,7 +21,7 @@ public class VoltageTestCommand extends CommandBase {
 
   public VoltageTestCommand() 
   {
-    m_driveTrain = SwerveDriveByVoltage.getInstance();
+    m_driveTrain = DrivetrainSubsystem.getInstance();
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
 
@@ -37,19 +37,19 @@ public class VoltageTestCommand extends CommandBase {
   public void initialize() {
     m_timer.reset();
     m_timer.start();
-    m_driveTrain.DriveByVoltage(0);
+    m_driveTrain.driveByVoltage(0);
   }
 
   @Override
   public void execute() {
-    m_driveTrain.DriveByVoltage(m_voltage);
+    m_driveTrain.driveByVoltage(m_voltage);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     m_timer.stop();
-    m_driveTrain.DriveByVoltage(0);
+    m_driveTrain.driveByVoltage(0);
   }
 
   // Returns true when the command should end.

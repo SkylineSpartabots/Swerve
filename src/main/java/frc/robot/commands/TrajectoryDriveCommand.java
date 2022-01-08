@@ -38,27 +38,42 @@ public class TrajectoryDriveCommand extends CommandBase {
     Pose2d p_end,
     boolean p_enablePID) 
   {
-    m_subsystem = DrivetrainSubsystem.getInstance();
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_subsystem);
-
+    this(p_enablePID);
     this.withName("DriveTo_" + p_end.toString());
 
-    m_config = new TrajectoryConfig(0.1, 0.1)//speed set to 0.5 m/s, acceleration of 1 m/s
+    m_config = new TrajectoryConfig(1, 1)//speed set to 0.5 m/s, acceleration of 1 m/s
       // Add kinematics to ensure max speed is actually obeyed
       .setKinematics(DriveConstants.kDriveKinematics);
     
     m_trajectory = TrajectoryGenerator.generateTrajectory(m_subsystem.getPose(), p_interiorWaypoints, p_end, m_config);
     m_endRotation = p_end.getRotation();
+  }
+
+  public TrajectoryDriveCommand(
+    Trajectory p_trajectory,
+    boolean p_enablePID) 
+  {
+    this(p_enablePID);
+
+    m_trajectory = p_trajectory;
+    var endPose = p_trajectory.getStates().get(m_trajectory.getStates().size() - 1).poseMeters;
+    this.withName("TrajectoryFollowTo_" + endPose.toString());
+    m_endRotation = endPose.getRotation();
+  }
+
+  private TrajectoryDriveCommand(boolean p_enablePID){
+    m_subsystem = DrivetrainSubsystem.getInstance();
+    // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(m_subsystem);
+
     var xController = new PIDController(AutoConstants.kPXController, 0, 0);
     var yController = new PIDController(AutoConstants.kPYController, 0, 0);     
     var thetaController = new ProfiledPIDController(AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
-    
+
     m_controller = new HolonomicDriveController(xController, yController, thetaController);
     m_controller.setEnabled(p_enablePID);
   }
-
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {

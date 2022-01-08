@@ -167,17 +167,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-
     var pose = m_odometry.getPoseMeters();
 
     SmartDashboard.putNumber("X Position", pose.getTranslation().getX());
     SmartDashboard.putNumber("Y Position", pose.getTranslation().getY());
     SmartDashboard.putNumber("Rotation", getGyroscopeRotation().getDegrees());
-    
   }
 
   public void applyDrive() {
-
     SwerveModuleState[] states = DriveConstants.kDriveKinematics.toSwerveModuleStates(m_chassisSpeeds);
     SwerveDriveKinematics.normalizeWheelSpeeds(states, MaxSpeedMetersPerSecond);
 
@@ -192,4 +189,36 @@ public class DrivetrainSubsystem extends SubsystemBase {
         new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
         new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle())));
   }
+
+  public void driveByVoltage(double p_voltage){
+     m_frontLeftModule.set(p_voltage, 0);
+     m_frontRightModule.set(p_voltage, 0);
+     m_backLeftModule.set(p_voltage, 0);
+     m_backRightModule.set(p_voltage, 0);
+
+     m_odometry.update(getGyroscopeRotation(), 
+        new SwerveModuleState(m_frontLeftModule.getDriveVelocity(), new Rotation2d(m_frontLeftModule.getSteerAngle())),
+        new SwerveModuleState(m_frontRightModule.getDriveVelocity(), new Rotation2d(m_frontRightModule.getSteerAngle())),
+        new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
+        new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle())));
+  }
+
+  /*
+    Baseline drivetrain logic is assuming target velocity is linear to voltage following 
+      Voltage = k * velocity
+
+    In theory, the equation should more like to be
+      Voltage = kS * sign(velocity) + kV * velocity + kA * acceleration
+    
+    For normal case where sign(velocity) == 1, and acceleration == 0, it should be
+      Voltage = kS + kV * velocity
+
+    to find out what is the value of kS, we can run test by using constant voltage record the X position, to capture the stable 
+    velocity it reached. Running the test using several different voltage like 3V, 6V, 9V and 12V, we should be able to calculate 
+    value of kS and kV. 
+
+    In game, we most likely to run the robot either stop or a high speed, we may run more voltage near the high side like 9V, 10V, 11V and 12V.
+
+    Extra: although battery have target voltage of 12V, we may use something lower like 11.5V to get a consistent output even when battery is not full.
+  */
 }

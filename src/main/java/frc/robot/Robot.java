@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
     
     DrivetrainSubsystem.getInstance().resetOdometry(new Pose2d());
     //m_autonomousCommand = DriveCommandFactory.getAutonomousCommand();
-    m_autonomousCommand = DriveCommandFactory.getTurnToTargetCommand();
+    m_autonomousCommand = DriveCommandFactory.getAutonomousCommand();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -117,11 +117,11 @@ public class Robot extends TimedRobot {
     m_testRounds = 0;
 
     
-    var voltageTab = Shuffleboard.getTab("VoltageTest");
+    /*var voltageTab = Shuffleboard.getTab("VoltageTest");
     voltageTab.add("SwerveDriveByVoltage", SwerveDriveByVoltage.getInstance());
     voltageTab.add("Voltage", 0);
     voltageTab.add("DurationInSec", 1);
-    voltageTab.add("VoltageTestCommand", new VoltageTestCommand());
+    voltageTab.add("VoltageTestCommand", new VoltageTestCommand());*/
   }
 
   /** This function is called periodically during test mode. */

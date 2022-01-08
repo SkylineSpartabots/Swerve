@@ -1,6 +1,8 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.*;
+import frc.robot.utils.TrajectoryUtil;
+
 import static frc.robot.Constants.*;
 
 import java.util.List;
@@ -8,7 +10,6 @@ import java.util.List;
 import edu.wpi.first.wpilibj.geometry.*;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
-
 import edu.wpi.first.wpilibj2.command.Command;
 
 
@@ -21,8 +22,6 @@ public class DriveCommandFactory {
    * @return the command to run in autonomous
    */
   public static Command getAutonomousCommand() {
-    
-
     var command =
       new TrajectoryDriveCommand(
           List.of(
@@ -30,7 +29,7 @@ public class DriveCommandFactory {
             new Translation2d(2, 2),
             new Translation2d(0,2)
           ),
-          new Pose2d(0, 0, new Rotation2d(3.1416)),
+          new Pose2d(0, 0, new Rotation2d(90)),
           true);
     return command;
   }
@@ -39,6 +38,7 @@ public class DriveCommandFactory {
    /* if(!LimelightSubsystem.getInstance().hasTarget()){
       return null;
     }*/
+    
     var rot = DrivetrainSubsystem.getInstance().getGyroscopeRotation();
     var command =
     new TrajectoryDriveCommand(
@@ -50,6 +50,7 @@ public class DriveCommandFactory {
         new Pose2d(0, 0, new Rotation2d(rot.getRadians()-(LimelightSubsystem.getInstance().getXOffset()*3.1416/180))),
         true);
     return command;
+    
     //return new TrajectoryDriveCommand(List.of(), new Pose2d(0,0,new Rotation2d(0.5)), true);
     //return new TrajectoryDriveCommand(List.of(), new Pose2d(0,0,new Rotation2d(rot.getRadians()-(LimelightSubsystem.getInstance().getXOffset()*3.1416/180))), true);
   }
@@ -86,7 +87,7 @@ public class DriveCommandFactory {
 
     var trajectory = TrajectoryGenerator.generateTrajectory(startPose, wayPoints, endPose, config);
 
-    var command = new TrajectoryFollowCommand(trajectory, true /*enablePID*/);
+    var command = new TrajectoryDriveCommand(trajectory, true /*enablePID*/);
     return command;
   }  
 
@@ -128,7 +129,7 @@ public class DriveCommandFactory {
     trajectory.concatenate(trajectory1);
     trajectory.concatenate(trajectory2);
     trajectory.concatenate(trajectory3);
-    var command = new TrajectoryFollowCommand(trajectory, true /*enablePID*/);
+    var command = new TrajectoryDriveCommand(trajectory, true /*enablePID*/);
     return command;
   }  
 }
