@@ -11,8 +11,6 @@ import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -23,7 +21,7 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
-public class DrivetrainSubsystem extends SubsystemBase {
+public class SwerveDriveByVoltage extends SubsystemBase {
   /**
    * The maximum voltage that will be delivered to the drive motors.
    * <p>
@@ -67,19 +65,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule m_backLeftModule;
   private final SwerveModule m_backRightModule;
 
-  private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+  private double m_voltage;
 
-  private static DrivetrainSubsystem m_instance = null;
-  public static DrivetrainSubsystem getInstance(){
+  private static SwerveDriveByVoltage m_instance = null;
+  public static SwerveDriveByVoltage getInstance(){
           if (m_instance == null) {
-                m_instance = new DrivetrainSubsystem();
+                m_instance = new SwerveDriveByVoltage();
           }
 
           return m_instance;
   }
 
-  public DrivetrainSubsystem() {
-    ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+  public SwerveDriveByVoltage() {
+    ShuffleboardTab tab = Shuffleboard.getTab("SwerveDriveByVoltage");
 
     m_frontLeftModule = Mk4SwerveModuleHelper.createFalcon500(
             // This parameter is optional, but will allow you to see the current state of the module on the dashboard.
@@ -160,35 +158,46 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_odometry.resetPosition(p_pose, getGyroscopeRotation());
   }
 
-  public void drive(ChassisSpeeds chassisSpeeds) {
-    m_chassisSpeeds = chassisSpeeds;
-  }
-
-
   @Override
   public void periodic() {
 
-    var pose = m_odometry.getPoseMeters();
+    m_frontLeftModule.set(m_voltage, 0);
+    m_frontRightModule.set(m_voltage, 0);
+    m_backLeftModule.set(m_voltage, 0);
+    m_backRightModule.set(m_voltage, 0);
+        
+    m_odometry.update(getGyroscopeRotation(), 
+      new SwerveModuleState(m_frontLeftModule.getDriveVelocity(), new Rotation2d(m_frontLeftModule.getSteerAngle())),
+      new SwerveModuleState(m_frontRightModule.getDriveVelocity(), new Rotation2d(m_frontRightModule.getSteerAngle())),
+      new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
+      new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle())));
 
+    var pose = m_odometry.getPoseMeters();
     SmartDashboard.putNumber("X Position", pose.getTranslation().getX());
     SmartDashboard.putNumber("Y Position", pose.getTranslation().getY());
     SmartDashboard.putNumber("Rotation", getGyroscopeRotation().getDegrees());
   }
 
-  public void applyDrive() {
+  /*
+    Baseline drivetrain logic is assuming target velocity is linear to voltage following 
+      Voltage = k * velocity
 
-    SwerveModuleState[] states = DriveConstants.kDriveKinematics.toSwerveModuleStates(m_chassisSpeeds);
-    SwerveDriveKinematics.normalizeWheelSpeeds(states, MaxSpeedMetersPerSecond);
+    In theory, the equation should more like to be
+      Voltage = kS * sign(velocity) + kV * velocity + kA * acceleration
+    
+    For normal case where sign(velocity) == 1, and acceleration == 0, it should be
+      Voltage = kS + kV * velocity
 
-    m_frontLeftModule.set(states[0].speedMetersPerSecond / MaxSpeedMetersPerSecond * MAX_VOLTAGE, states[0].angle.getRadians());
-    m_frontRightModule.set(states[1].speedMetersPerSecond / MaxSpeedMetersPerSecond * MAX_VOLTAGE, states[1].angle.getRadians());
-    m_backLeftModule.set(states[2].speedMetersPerSecond / MaxSpeedMetersPerSecond * MAX_VOLTAGE, states[2].angle.getRadians());
-    m_backRightModule.set(states[3].speedMetersPerSecond / MaxSpeedMetersPerSecond * MAX_VOLTAGE, states[3].angle.getRadians());
+    to find out what is the value of kS, we can run test by using constant voltage record the X position, to capture the stable 
+    velocity it reached. Running the test using several different voltage like 3V, 6V, 9V and 12V, we should be able to calculate 
+    value of kS and kV. 
 
-    m_odometry.update(getGyroscopeRotation(), 
-        new SwerveModuleState(m_frontLeftModule.getDriveVelocity(), new Rotation2d(m_frontLeftModule.getSteerAngle())),
-        new SwerveModuleState(m_frontRightModule.getDriveVelocity(), new Rotation2d(m_frontRightModule.getSteerAngle())),
-        new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
-        new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle())));
+    In game, we most likely to run the robot either stop or a high speed, we may run more voltage near the high side like 9V, 10V, 11V and 12V.
+
+    Extra: although battery have target voltage of 12V, we may use something lower like 11.5V to get a consistent output even when battery is not full.
+  */
+  public void DriveByVoltage(double p_voltage)
+  {
+    m_voltage = p_voltage;
   }
 }
