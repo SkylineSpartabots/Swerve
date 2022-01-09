@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.*;
-import frc.robot.utils.TrajectoryUtil;
 
 import static frc.robot.Constants.*;
 

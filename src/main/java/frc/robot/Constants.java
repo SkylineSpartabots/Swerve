@@ -87,4 +87,15 @@ public final class Constants {
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
 
+    public static final class TurnConstants{
+        public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI * 4;
+        public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI * 2;
+        public static final double kPThetaController = 18.5;
+        public static final double kIThetaController = 0;
+        public static final double kDThetaController = 0.2;
+
+        public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
+            new TrapezoidProfile.Constraints(
+                kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+    }
 }
