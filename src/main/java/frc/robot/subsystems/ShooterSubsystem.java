@@ -15,6 +15,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
     
+    private ShuffleboardTab debugTab = ShuffleboardTab.getTab("Shooter");
+
     private final TalonFX flywheelTalon = new Talon(Constants.SHOOTER_FLYWHEEL_MOTOR);
 
     private boolean ballShotState;
@@ -37,14 +39,17 @@ public class ShooterSubsystem extends SubsystemBase {
         return (this.rpmtoRadSec(rawVeloToRpm(flywheelVelo))*Math.sin(Constants.SHOOTER_FLYWHEEL_ANGLE_DEGREES)-9.81*this.ballShotTime);
     }
 
-    @Override
-    public void periodic() {
+    private void ballShotTimer() {
         if (ballShotState) {
             ballShotTime = ballShotTime+0.02;
         } else {
             ballShotTime = 0;
         }
-        
+    }
+
+    @Override
+    public void periodic() {
+        this.ballShotTimer();
     }
 
     @Override
