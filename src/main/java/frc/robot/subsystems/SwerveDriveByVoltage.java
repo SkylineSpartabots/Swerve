@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
@@ -56,6 +58,14 @@ public class SwerveDriveByVoltage extends SubsystemBase {
           Math.hypot(DriveConstants.kTrackWidth / 2.0, DriveConstants.kWheelBase / 2.0);
 
   private final SwerveDriveOdometry m_odometry;
+
+  private final ShuffleboardLayout m_shuffleBoardContainer;
+  private final NetworkTableEntry m_xPositionEnty;
+  private final NetworkTableEntry m_yPositionEnty;
+  private final NetworkTableEntry m_rotationEnty;
+  private final NetworkTableEntry m_xSpeedEntry;
+  private final NetworkTableEntry m_ySpeedEntry;
+  private final NetworkTableEntry m_angularSpeedEntry;
 
   private final AHRS m_navx = new AHRS(SPI.Port.kMXP, (byte) 200); // NavX connected over MXP
 
@@ -131,6 +141,16 @@ public class SwerveDriveByVoltage extends SubsystemBase {
     );
 
     m_odometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics, getGyroscopeRotation());
+
+    m_shuffleBoardContainer = tab.getLayout("BotFrame", BuiltInLayouts.kList)
+      .withSize(2, 6)
+      .withPosition(8, 0);
+    m_xPositionEnty = m_shuffleBoardContainer.add("X (m)", 0).getEntry();
+    m_yPositionEnty = m_shuffleBoardContainer.add("Y (m)", 0).getEntry();
+    m_rotationEnty = m_shuffleBoardContainer.add("Rotation", 0).getEntry();
+    m_xSpeedEntry = m_shuffleBoardContainer.add("XSpeed (m/s)", 0).getEntry();
+    m_ySpeedEntry = m_shuffleBoardContainer.add("YSpeed (m/s)", 0).getEntry();
+    m_angularSpeedEntry = m_shuffleBoardContainer.add("AngularSpeed (rad/s)", 0).getEntry();
   }
 
   /**
@@ -165,17 +185,29 @@ public class SwerveDriveByVoltage extends SubsystemBase {
     m_frontRightModule.set(m_voltage, 0);
     m_backLeftModule.set(m_voltage, 0);
     m_backRightModule.set(m_voltage, 0);
-        
-    m_odometry.update(getGyroscopeRotation(), 
-      new SwerveModuleState(m_frontLeftModule.getDriveVelocity(), new Rotation2d(m_frontLeftModule.getSteerAngle())),
-      new SwerveModuleState(m_frontRightModule.getDriveVelocity(), new Rotation2d(m_frontRightModule.getSteerAngle())),
-      new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
-      new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle())));
+    
+    var m_frontLeftModuleState =  new SwerveModuleState(m_frontLeftModule.getDriveVelocity(), new Rotation2d(m_frontLeftModule.getSteerAngle()));
+    var m_frontRightModuleState =  new SwerveModuleState(m_frontRightModule.getDriveVelocity(), new Rotation2d(m_frontRightModule.getSteerAngle()));
+    var m_backLeftModuleState =  new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle()));
+    var m_backRightModuleState =  new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle()));
 
-    var pose = m_odometry.getPoseMeters();
-    SmartDashboard.putNumber("X Position", pose.getTranslation().getX());
-    SmartDashboard.putNumber("Y Position", pose.getTranslation().getY());
-    SmartDashboard.putNumber("Rotation", getGyroscopeRotation().getDegrees());
+    var pose = m_odometry.update(getGyroscopeRotation(), 
+      m_frontLeftModuleState, 
+      m_frontRightModuleState,
+      m_backLeftModuleState,
+      m_backRightModuleState);
+    m_xPositionEnty.setDouble(pose.getTranslation().getX());
+    m_yPositionEnty.setDouble(pose.getTranslation().getY());
+    m_rotationEnty.setDouble(pose.getTranslation().getY());
+
+    var chassisState = DriveConstants.kDriveKinematics.toChassisSpeeds(
+      m_frontLeftModuleState,
+      m_frontRightModuleState,
+      m_backLeftModuleState,
+      m_backRightModuleState);
+    m_xSpeedEntry.setDouble(chassisState.vxMetersPerSecond);
+    m_ySpeedEntry.setDouble(chassisState.vyMetersPerSecond);
+    m_angularSpeedEntry.setDouble(chassisState.omegaRadiansPerSecond);
   }
 
   /*
