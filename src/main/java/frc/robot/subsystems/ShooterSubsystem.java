@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 
 public class ShooterSubsystem {
-
+ 
     private static ShooterSubsystem instance = null;
 
     /*
