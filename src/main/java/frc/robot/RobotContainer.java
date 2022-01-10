@@ -116,6 +116,7 @@ public class RobotContainer {
       double heading_error = -tx;
       double Kp = 0.2;
       double min_command = 0.05;
+      double maxSpeed = 2;
         double steering_adjust = 0.0f;
         if (tx > 1.0)
         {
@@ -125,9 +126,7 @@ public class RobotContainer {
         {
                 steering_adjust = Kp*heading_error + min_command;
         }
-      rot = steering_adjust;
-
-
+      rot = steering_adjust>maxSpeed?maxSpeed:steering_adjust;
     }
     
 
