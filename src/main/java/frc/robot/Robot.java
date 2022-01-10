@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
     
     DrivetrainSubsystem.getInstance().resetOdometry(new Pose2d());
     //m_autonomousCommand = DriveCommandFactory.getAutonomousCommand();
-    m_autonomousCommand = new InPlaceTurnCommand(3.14, 5);
+    m_autonomousCommand = new TurnFromOffset(5);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {

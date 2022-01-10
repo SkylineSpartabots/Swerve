@@ -7,7 +7,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-
+import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Button;
 
@@ -91,11 +91,50 @@ public class RobotContainer {
     // positive value when we pull to the left (remember, CCW is positive in
     // mathematics). Xbox controllers return positive values when you pull to
     // the right by default.
-    final var rot = -modifyAxis(m_controller.getX(GenericHID.Hand.kRight)) * DrivetrainSubsystem.MaxAngularSpeedRadiansPerSecond;
+    var rot = -modifyAxis(m_controller.getX(GenericHID.Hand.kRight)) * DrivetrainSubsystem.MaxAngularSpeedRadiansPerSecond;
+
+    if(modifyAxis(m_controller.getX(GenericHID.Hand.kRight))==0){
+      /*
+      double tx = LimelightSubsystem.getInstance().getXOffset();
+      double heading_error = -tx;
+      double Kp = 0.2;
+      double min_command = 0.05;
+        double steering_adjust = 0.0f;
+        if (tx > 1.0)
+        {
+                steering_adjust = Kp*heading_error - min_command;
+        }
+        else if (tx < 1.0)
+        {
+                steering_adjust = Kp*heading_error + min_command;
+        }
+      rot = steering_adjust;
+      */
+
+        
+      double tx = findAngle(m_drivetrainSubsystem.getPose(), 1, 0);
+      double heading_error = -tx;
+      double Kp = 0.2;
+      double min_command = 0.05;
+        double steering_adjust = 0.0f;
+        if (tx > 1.0)
+        {
+                steering_adjust = Kp*heading_error - min_command;
+        }
+        else if (tx < 1.0)
+        {
+                steering_adjust = Kp*heading_error + min_command;
+        }
+      rot = steering_adjust;
+
+
+    }
+    
 
     m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_drivetrainSubsystem.getGyroscopeRotation()));
   }
 
+  
   
   public static double applyDeadband(double value, double deadband) {
     if (Math.abs(value) > deadband) {
@@ -108,10 +147,15 @@ public class RobotContainer {
       return 0.0;
     }
   }
+  public double findAngle(Pose2d currentPose, double toX, double toY){
+    double deltaY = (toY - currentPose.getY());
+    double deltaX = (toX - currentPose.getX());
+    return (((Math.toDegrees(Math.atan2(deltaY, deltaX)))+360)-currentPose.getRotation().getDegrees());
+  }
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = applyDeadband(value, 0.03);
+    value = applyDeadband(value, 0.1);
 
     // Square the axis
     value = Math.copySign(value * value, value);
