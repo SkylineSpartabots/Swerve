@@ -11,32 +11,28 @@ import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
 
-
-public class InPlaceTurnCommand extends CommandBase {
-  //@SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
+public class TrapezoidProfileTurnCommand extends CommandBase {
   private final DrivetrainSubsystem m_subsystem;
 
-  private final double m_endRadians;
-  private final double m_durationInSec;
   private final ProfiledPIDController m_thetaController;
+  private final TrapezoidProfile m_profile;
 
   private final Timer m_timer = new Timer();
 
-  public InPlaceTurnCommand(
-    double p_endRadians,
-    double p_durationInSec) 
+  public TrapezoidProfileTurnCommand(
+    double p_endRadians) 
   {
     m_subsystem = DrivetrainSubsystem.getInstance();
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_subsystem);
 
-    m_endRadians = p_endRadians;
-    m_durationInSec = p_durationInSec;
-    this.withName("TrajectoryFollowTo_" + m_endRadians + "_In_" + m_durationInSec + "_Sec");
-
     m_thetaController = new ProfiledPIDController(AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    m_profile = new TrapezoidProfile(AutoConstants.kThetaControllerConstraints, new TrapezoidProfile.State(p_endRadians, 0));
+
+    this.withName("TrapezoidProfileTurnCommand_" + p_endRadians +":totalTime" + m_profile.totalTime() + "");
   }
 
   // Called when the command is initially scheduled.
@@ -48,11 +44,14 @@ public class InPlaceTurnCommand extends CommandBase {
 
   @Override
   public void execute() {
+    var state = m_profile.calculate(m_timer.get());
+    var thetaFF = state.velocity;
+
     var currentRotation = m_subsystem.getPose().getRotation();
-    double thetaFF = m_thetaController.calculate(currentRotation.getRadians(), m_endRadians);
+    double thetaFeedBack = m_thetaController.calculate(currentRotation.getRadians(), state.position);
 
     var targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-        0, 0, thetaFF, currentRotation);
+        0, 0, thetaFF+thetaFeedBack, currentRotation);
     m_subsystem.drive(targetChassisSpeeds);
   }
 
@@ -66,6 +65,6 @@ public class InPlaceTurnCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_timer.hasElapsed(m_durationInSec);
+    return m_timer.hasElapsed(m_profile.totalTime());
   }
 }
