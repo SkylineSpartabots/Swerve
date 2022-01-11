@@ -37,7 +37,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
     
-    private final TalonFX flywheelTalon = new Talon(Constants.SHOOTER_FLYWHEEL_MOTOR);
+    private final TalonFX flywheelTalon = new TalonFX(Constants.SHOOTER_FLYWHEEL_MOTOR);
 
     private boolean ballShotState;
     private double ballShotTime;
@@ -52,11 +52,20 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     private double rpmToBallVeloX() {
-        return (this.rpmtoRadSec(rawVeloToRpm(flywheelVelo))*Math.cos(Units.degreesToRadians(Constants.SHOOTER_FLYWHEEL_ANGLE_DEGREES)-9.81*this.ballShotTime)
+        return (this.rpmtoRadSec(
+            rawVeloToRpm(flywheelVelo))
+            * Math.cos(Units.degreesToRadians(
+                Constants.SHOOTER_FLYWHEEL_ANGLE_DEGREES
+                )-9.81 * this.ballShotTime));
     }
     
     private double rpmToBallVeloY() {
-        return (this.rpmtoRadSec(rawVeloToRpm(flywheelVelo))*Math.sin(Constants.SHOOTER_FLYWHEEL_ANGLE_DEGREES)-9.81*this.ballShotTime);
+        return (this.rpmtoRadSec
+        (rawVeloToRpm(
+            flywheelVelo
+        ))
+        *Math.sin(Constants.SHOOTER_FLYWHEEL_ANGLE_DEGREES)
+        -9.81*this.ballShotTime);
     }
 
     @Override
