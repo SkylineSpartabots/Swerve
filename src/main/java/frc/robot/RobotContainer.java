@@ -7,9 +7,10 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-
+import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -67,7 +68,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     new Button(m_controller::getBackButton).whenPressed(m_drivetrainSubsystem::zeroGyroscope);
-    // new Button(m_controller::getAButton).whenPressed(m_limelight::init);
+     new Button(m_controller::getAButton).whenPressed(this::resetOdometryFromPosition);
     // new Button(m_controller::getXButton).whenPressed();
     // new Button(m_controller::getYButton).whenPressed(robot::robotInit);
   }
@@ -91,11 +92,49 @@ public class RobotContainer {
     // positive value when we pull to the left (remember, CCW is positive in
     // mathematics). Xbox controllers return positive values when you pull to
     // the right by default.
-    final var rot = -modifyAxis(m_controller.getX(GenericHID.Hand.kRight)) * DrivetrainSubsystem.MaxAngularSpeedRadiansPerSecond;
+    var rot = -modifyAxis(m_controller.getX(GenericHID.Hand.kRight)) * DrivetrainSubsystem.MaxAngularSpeedRadiansPerSecond;
 
+    if(modifyAxis(m_controller.getX(GenericHID.Hand.kRight))==0){
+      /*
+      double tx = LimelightSubsystem.getInstance().getXOffset();
+      double heading_error = -tx;
+      double Kp = 0.2;
+      double min_command = 0.05;
+        double steering_adjust = 0.0f;
+        if (tx > 1.0)
+        {
+                steering_adjust = Kp*heading_error - min_command;
+        }
+        else if (tx < 1.0)
+        {
+                steering_adjust = Kp*heading_error + min_command;
+        }
+      rot = steering_adjust;
+      */
+
+        
+      double tx = findAngle(m_drivetrainSubsystem.getPose(), 1, 0);
+      double heading_error = -tx;
+      double Kp = 0.2;
+      double maxSpeed = 2;
+      double steering_adjust = Kp* //takes the kp constant
+        Math.copySign(Math.pow(Math.abs(heading_error), 0.25),heading_error);//multiplies it by the root of the heading error, keeping sign
+      //rot = steering_adjust>maxSpeed?maxSpeed:steering_adjust;
+      SmartDashboard.putNumber("Tx", tx);
+      SmartDashboard.putNumber("Steering", steering_adjust);
+    }
+    
     m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_drivetrainSubsystem.getGyroscopeRotation()));
   }
 
+  public static void resetOdometryFromLimelight(){
+      //
+  }
+  public void resetOdometryFromPosition(){
+     m_drivetrainSubsystem.resetOdometry(new Pose2d());
+  }
+
+  
   
   public static double applyDeadband(double value, double deadband) {
     if (Math.abs(value) > deadband) {
@@ -108,10 +147,29 @@ public class RobotContainer {
       return 0.0;
     }
   }
+  public static double findAngle(Pose2d currentPose, double toX, double toY){
+    double deltaY = (toY - currentPose.getY());
+    double deltaX = (toX - currentPose.getX());
+    SmartDashboard.putNumber("CurrX", currentPose.getX());
+    SmartDashboard.putNumber("CurrY", currentPose.getY());
+    double rot = currentPose.getRotation().getDegrees();
+    if(rot > 180)
+      rot -= 180;
+    else if (rot > -180 && rot < 180)
+      rot += 180;
+      //Unit circle is NOW: 
+      //0: +x
+      //90: +y
+      //180: -x
+      //270: -y
+      //It loops between 0 and 360 degrees
+    SmartDashboard.putNumber("CurrentRot", rot);
+    return (Math.toDegrees(Math.atan2(deltaY, deltaX)) - currentPose.getRotation().getDegrees());
+  }
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = applyDeadband(value, 0.03);
+    value = applyDeadband(value, 0.1);
 
     // Square the axis
     value = Math.copySign(value * value, value);

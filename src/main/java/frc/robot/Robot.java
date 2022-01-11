@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
-
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
@@ -75,9 +74,11 @@ public class Robot extends TimedRobot {
     
     DrivetrainSubsystem.getInstance().resetOdometry(new Pose2d());
     SequentialCommandGroup group = new SequentialCommandGroup(DriveCommandFactory.getAutonomousCommand(), new VoltageTestCommand(3, 8));
-    m_autonomousCommand = DriveCommandFactory.getAutonomousCommand();
+    //m_autonomousCommand = DriveCommandFactory.getAutonomousCommand();
     //m_autonomousCommand = new InPlaceTurnCommand(3.14, 5);
     //m_autonomousCommand = new VoltageTestCommand();
+    //m_autonomousCommand = new TurnFromOffset(5);
+    m_autonomousCommand = new InPlaceTurnCommand(Math.toRadians(RobotContainer.findAngle(DrivetrainSubsystem.getInstance().getPose(), 1, 0)), 10);
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();

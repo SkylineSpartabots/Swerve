@@ -39,8 +39,9 @@ public class InPlaceTurnCommand extends CommandBase {
     m_endRadians = p_endRadians;
     m_durationInSec = p_durationInSec;
     this.withName("TrajectoryFollowTo_" + m_endRadians + "_In_" + m_durationInSec + "_Sec");
-
+    
     m_thetaController = new ProfiledPIDController(TurnConstants.kPThetaController, TurnConstants.   kIThetaController, TurnConstants.kDThetaController, TurnConstants.kThetaControllerConstraints);
+    m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   // Called when the command is initially scheduled.
