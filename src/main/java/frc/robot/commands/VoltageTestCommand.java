@@ -19,15 +19,15 @@ public class VoltageTestCommand extends CommandBase {
   private final double m_voltage;
   private final double m_durationInSecond;
 
-  public VoltageTestCommand() 
+  public VoltageTestCommand(double voltage, double duration) 
   {
     m_driveTrain = DrivetrainSubsystem.getInstance();
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
 
     ShuffleboardTab tab = Shuffleboard.getTab("Test");
-    m_voltage = tab.add("Voltage", 0).getEntry().getDouble(0);
-    m_durationInSecond = tab.add("DurationInSec", 0).getEntry().getDouble(1);
+    m_voltage = voltage;//tab.add("Voltage", 0).getEntry().getDouble(0);
+    m_durationInSecond = duration;//tab.add("DurationInSec", 0).getEntry().getDouble(1);
 
     this.withName("VoltageTest " + m_voltage + "V for " + m_durationInSecond + " sec");
   }
@@ -42,7 +42,7 @@ public class VoltageTestCommand extends CommandBase {
 
   @Override
   public void execute() {
-    m_driveTrain.driveByVoltage(m_voltage);
+    m_driveTrain.driveByVoltage(5);
   }
 
   // Called once the command ends or is interrupted.
@@ -55,6 +55,6 @@ public class VoltageTestCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_timer.hasElapsed(m_durationInSecond);
+    return false; //m_timer.hasElapsed(m_durationInSecond);
   }
 }

@@ -9,13 +9,16 @@ import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.kinematics.SwerveDriveOdometry;
@@ -69,6 +72,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
+  private final ShuffleboardLayout m_shuffleBoardContainer;
+  private final NetworkTableEntry m_xPositionEnty;
+  private final NetworkTableEntry m_yPositionEnty;
+  private final NetworkTableEntry m_rotationEnty;
+  private final NetworkTableEntry m_xSpeedEntry;
+  private final NetworkTableEntry m_ySpeedEntry;
+  private final NetworkTableEntry m_angularSpeedEntry;
+  
+  private final SimpleMotorFeedforward m_ffController;
   private static DrivetrainSubsystem m_instance = null;
   public static DrivetrainSubsystem getInstance(){
           if (m_instance == null) {
@@ -133,6 +145,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
     );
 
     m_odometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics, getGyroscopeRotation());
+    m_ffController = new SimpleMotorFeedforward(DriveConstants.ksVolts, DriveConstants.kvVoltSecondsPerMeter, DriveConstants.kaVoltSecondsSquaredPerMeter);
+
+    m_shuffleBoardContainer = tab.getLayout("BotFrame", BuiltInLayouts.kList)
+      .withSize(2, 6)
+      .withPosition(8, 0);
+    m_xPositionEnty = m_shuffleBoardContainer.add("X (m)", 0).getEntry();
+    m_yPositionEnty = m_shuffleBoardContainer.add("Y (m)", 0).getEntry();
+    m_rotationEnty = m_shuffleBoardContainer.add("Rotation", 0).getEntry();
+    m_xSpeedEntry = m_shuffleBoardContainer.add("XSpeed (m/s)", 0).getEntry();
+    m_ySpeedEntry = m_shuffleBoardContainer.add("YSpeed (m/s)", 0).getEntry();
+    m_angularSpeedEntry = m_shuffleBoardContainer.add("AngularSpeed (rad/s)", 0).getEntry();
   }
 
   /**
@@ -167,21 +190,34 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    var pose = m_odometry.getPoseMeters();
-
-    SmartDashboard.putNumber("X Position", pose.getTranslation().getX());
-    SmartDashboard.putNumber("Y Position", pose.getTranslation().getY());
-    SmartDashboard.putNumber("Rotation", getGyroscopeRotation().getDegrees());
+     SwerveModuleState[] states = DriveConstants.kDriveKinematics.toSwerveModuleStates(m_chassisSpeeds);
+     var pose = m_odometry.update(getGyroscopeRotation(), 
+        states[0], 
+        states[1],
+        states[2],
+        states[3]);
+      m_xPositionEnty.setDouble(pose.getTranslation().getX());
+      m_yPositionEnty.setDouble(pose.getTranslation().getY());
+      m_rotationEnty.setDouble(pose.getTranslation().getY());
+  
+      var chassisState = DriveConstants.kDriveKinematics.toChassisSpeeds(
+        states[0], 
+        states[1],
+        states[2],
+        states[3]);
+      m_xSpeedEntry.setDouble(chassisState.vxMetersPerSecond);
+      m_ySpeedEntry.setDouble(chassisState.vyMetersPerSecond);
+      m_angularSpeedEntry.setDouble(chassisState.omegaRadiansPerSecond);
   }
 
   public void applyDrive() {
     SwerveModuleState[] states = DriveConstants.kDriveKinematics.toSwerveModuleStates(m_chassisSpeeds);
     SwerveDriveKinematics.normalizeWheelSpeeds(states, MaxSpeedMetersPerSecond);
 
-    m_frontLeftModule.set(states[0].speedMetersPerSecond / MaxSpeedMetersPerSecond * MAX_VOLTAGE, states[0].angle.getRadians());
-    m_frontRightModule.set(states[1].speedMetersPerSecond / MaxSpeedMetersPerSecond * MAX_VOLTAGE, states[1].angle.getRadians());
-    m_backLeftModule.set(states[2].speedMetersPerSecond / MaxSpeedMetersPerSecond * MAX_VOLTAGE, states[2].angle.getRadians());
-    m_backRightModule.set(states[3].speedMetersPerSecond / MaxSpeedMetersPerSecond * MAX_VOLTAGE, states[3].angle.getRadians());
+    m_frontLeftModule.set(calculateVoltage(states[0].speedMetersPerSecond), states[0].angle.getRadians());
+    m_frontRightModule.set(calculateVoltage(states[1].speedMetersPerSecond), states[1].angle.getRadians());
+    m_backLeftModule.set(calculateVoltage(states[2].speedMetersPerSecond), states[2].angle.getRadians());
+    m_backRightModule.set(calculateVoltage(states[3].speedMetersPerSecond), states[3].angle.getRadians());
 
     m_odometry.update(getGyroscopeRotation(), 
         new SwerveModuleState(m_frontLeftModule.getDriveVelocity(), new Rotation2d(m_frontLeftModule.getSteerAngle())),
@@ -201,6 +237,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
         new SwerveModuleState(m_frontRightModule.getDriveVelocity(), new Rotation2d(m_frontRightModule.getSteerAngle())),
         new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
         new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle())));
+  }
+
+  public double calculateVoltage(double speed){
+          //V1 = 3.5
+          //V3 = 4.5
+          //V6 = 6.5
+          //V12 = 10.5
+        return m_ffController.calculate(speed);
+  }
+  public double calculateVoltage(double speed, double acceleration){
+          return m_ffController.calculate(speed, acceleration);
   }
 
   /*

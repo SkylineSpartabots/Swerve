@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
@@ -73,18 +74,21 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     
     DrivetrainSubsystem.getInstance().resetOdometry(new Pose2d());
-    //m_autonomousCommand = DriveCommandFactory.getAutonomousCommand();
-    m_autonomousCommand = new InPlaceTurnCommand(3.14, 5);
-
+    SequentialCommandGroup group = new SequentialCommandGroup(DriveCommandFactory.getAutonomousCommand(), new VoltageTestCommand(3, 8));
+    m_autonomousCommand = DriveCommandFactory.getAutonomousCommand();
+    //m_autonomousCommand = new InPlaceTurnCommand(3.14, 5);
+    //m_autonomousCommand = new VoltageTestCommand();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
+      //group.schedule();
     }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
   public void teleopInit() {
