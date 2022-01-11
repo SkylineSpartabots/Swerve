@@ -67,7 +67,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     new Button(m_controller::getBackButton).whenPressed(m_drivetrainSubsystem::zeroGyroscope);
-    // new Button(m_controller::getAButton).whenPressed(m_limelight::init);
+     new Button(m_controller::getAButton).whenPressed(this::resetOdometryFromPosition);
     // new Button(m_controller::getXButton).whenPressed();
     // new Button(m_controller::getYButton).whenPressed(robot::robotInit);
   }
@@ -115,22 +115,21 @@ public class RobotContainer {
       double tx = findAngle(m_drivetrainSubsystem.getPose(), 1, 0);
       double heading_error = -tx;
       double Kp = 0.2;
-      double min_command = 0.05;
       double maxSpeed = 2;
-        double steering_adjust = 0.0f;
-        if (tx > 1.0)
-        {
-                steering_adjust = Kp*heading_error - min_command;
-        }
-        else if (tx < 1.0)
-        {
-                steering_adjust = Kp*heading_error + min_command;
-        }
+      double steering_adjust = Kp* //takes the kp constant
+        Math.copySign(Math.pow(Math.abs(heading_error), 0.25),heading_error);//multiplies it by the root of the heading error, keeping sign
       rot = steering_adjust>maxSpeed?maxSpeed:steering_adjust;
     }
     
 
     m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_drivetrainSubsystem.getGyroscopeRotation()));
+  }
+
+  public static void resetOdometryFromLimelight(){
+      //
+  }
+  public void resetOdometryFromPosition(){
+     m_drivetrainSubsystem.resetOdometry(new Pose2d());
   }
 
   
