@@ -112,7 +112,7 @@ public class RobotContainer {
       */
 
         
-      double tx = findAngle(m_drivetrainSubsystem.getPose(), m_drivetrainSubsystem.getGyroscopeRotation().getDegrees(), 1, 0);
+      double tx = findAngle(m_drivetrainSubsystem.getPose(), m_drivetrainSubsystem.getPose().getRotation().getDegrees(), 1, 0);
       double heading_error = -tx;
       double Kp = 0.05;
       double maxSpeed = 2;
@@ -156,7 +156,7 @@ public class RobotContainer {
 
     
     
-    double modifiedHeading = heading - 180;
+    double modifiedHeading = heading + 180;
     absolute += 180;
     double difference1 = absolute - modifiedHeading;
     double difference2 = -1 * (difference1 % 180);//modifiedHeading - absolute;
