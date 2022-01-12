@@ -12,7 +12,6 @@ import frc.robot.Constants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
     private static ShooterSubsystem instance = null;
-
     /*
     private final double maxInitialVelocity = (insert the equation found through encoder)
 
@@ -40,7 +39,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return Units.rotationsPerMinuteToRadiansPerSecond(rpm);
     }
 
-    private void setMotorPower(double power) {
+    public void setMotorPower(double power) {
         flywheelTalon.set(ControlMode.PercentOutput, power);
     }
 
