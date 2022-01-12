@@ -1,14 +1,16 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+
+import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
-
     private static ShooterSubsystem instance = null;
 
     /*
@@ -20,64 +22,31 @@ public class ShooterSubsystem extends SubsystemBase {
     private double distanceToLowerBucket = distanceToHub * Math.sin(some angle, dependon on height of shooter and the actual height of hub)
 
     */
-    private static double desiredDistance = 0;
-    private final TalonFX flywheelTalon = new TalonFX(Constants.SHOOTER_FLYWHEEL_MOTOR);
+    private final TalonFX flywheelTalon = new TalonFX(ShooterConstants.kFlywheelMotor);
     private ShuffleboardTab debugTab = Shuffleboard.getTab("Shooter");
-    private boolean ballShotState;
-    private double ballShotTime;
-    private double flywheelVelo = flywheelTalon.getSelectedSensorVelocity(0);
-    private double flywheelRpm = rawVeloToRpm(flywheelVelo);
-    public ShooterSubsystem(double desiredDistance) {
-        desiredDistance = ShooterSubsystem.desiredDistance;
-    }
 
     public static ShooterSubsystem getInstance() {
         if (instance == null) {
-            instance = new ShooterSubsystem(desiredDistance);
+            instance = new ShooterSubsystem();
         }
         return instance;
     }
 
     private double rawVeloToRpm(double velo) {
-        return velo / Constants.FALCON_VELO_RPM_FACTOR;
+        return velo / ShooterConstants.kFalconVeloRpmFactor;
     }
 
     private double rpmtoRadSec(double rpm) {
         return Units.rotationsPerMinuteToRadiansPerSecond(rpm);
     }
 
-    private double rpmToBallVeloX() {
-        return (this.rpmtoRadSec(
-                rawVeloToRpm(flywheelVelo))
-                * Math.cos(Units.degreesToRadians(
-                Constants.SHOOTER_FLYWHEEL_ANGLE_DEGREES
-        ) - 9.81 * this.ballShotTime));
-    }
-
-    private double rpmToBallVeloY() {
-        return (this.rpmtoRadSec
-                (rawVeloToRpm(
-                        flywheelVelo
-                ))
-                * Math.sin(Constants.SHOOTER_FLYWHEEL_ANGLE_DEGREES)
-                - 9.81 * this.ballShotTime);
-    }
-
-    private void ballShotTimer() {
-        if (ballShotState) {
-            ballShotTime = ballShotTime + 0.02;
-        } else {
-            ballShotTime = 0;
-        }
+    private void setMotorPower(double power) {
+        flywheelTalon.set(ControlMode.PercentOutput, power);
     }
 
     @Override
     public void periodic() {
-        this.ballShotTimer();
-        debugTab.add("Flywheel RPM", flywheelRpm);
-        debugTab.add("Flywheel Rad/sec", this.rpmtoRadSec(flywheelRpm));
-        debugTab.add("Ball X Velocity", this.rpmToBallVeloX());
-        debugTab.add("Ball Y Velocity", this.rpmToBallVeloY());
+        debugTab.add((Sendable) flywheelTalon);
     }
 
     @Override

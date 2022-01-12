@@ -99,7 +99,19 @@ public final class Constants {
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
 
-	public static final double SHOOTER_FLYWHEEL_ANGLE_DEGREES = 0;
-	public static final double FALCON_VELO_RPM_FACTOR = 0;
-	public static final int SHOOTER_FLYWHEEL_MOTOR = 0;
+    public static final class LimelightConstants {
+        public int kTargetHeight;
+        public int kLensHeight;
+        public double kLensHorizontalAngle;
+    }
+
+    public static final class ShooterConstants {
+        public static final double kFlywheelAngle = 0;
+        public static final double kFlywheelHeight = 0;
+        public static final double kFlywheetRobotOffset = 0; // Distance between front of shooter to front of robot
+        public static final double kGravityAccelConstant = 9.81;
+
+        public static final double kFalconVeloRpmFactor = 0   ;
+        public static final int kFlywheelMotor = 0;
+    }
 }
