@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.Button;
 
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 
 
@@ -112,13 +112,14 @@ public class RobotContainer {
       */
 
         
-      double tx = findAngle(m_drivetrainSubsystem.getPose(), 1, 0);
+      double tx = findAngle(m_drivetrainSubsystem.getPose(), m_drivetrainSubsystem.getGyroscopeRotation().getDegrees(), 1, 0);
       double heading_error = -tx;
-      double Kp = 0.2;
+      double Kp = 0.05;
       double maxSpeed = 2;
-      double steering_adjust = Kp* //takes the kp constant
-        Math.copySign(Math.pow(Math.abs(heading_error), 0.25),heading_error);//multiplies it by the root of the heading error, keeping sign
-      rot = steering_adjust>maxSpeed?maxSpeed:steering_adjust;
+      double steering_adjust = Kp*heading_error;
+        //Math.copySign(Math.pow(Math.abs(heading_error), 0.25),heading_error);//multiplies it by the root of the heading error, keeping sign
+      //rot = Math.abs(steering_adjust)>maxSpeed?maxSpeed:steering_adjust;
+        rot = steering_adjust;
     }
     
 
@@ -145,10 +146,37 @@ public class RobotContainer {
       return 0.0;
     }
   }
-  public double findAngle(Pose2d currentPose, double toX, double toY){
+  public double findAngle(Pose2d currentPose, double heading, double toX, double toY){
     double deltaY = (toY - currentPose.getY());
     double deltaX = (toX - currentPose.getX());
-    return (((Math.toDegrees(Math.atan2(deltaY, deltaX)))+360)-currentPose.getRotation().getDegrees());
+
+    double absolute = Math.toDegrees(Math.atan2(deltaY, deltaX));
+    if(absolute>0) absolute -= 180;
+    else if(absolute < 0) absolute += 180;
+
+    
+    
+    double modifiedHeading = heading - 180;
+    absolute += 180;
+    double difference1 = absolute - modifiedHeading;
+    double difference2 = -1 * (difference1 % 180);//modifiedHeading - absolute;
+    double result = Math.abs(difference1)>Math.abs(difference2) ? difference2 : difference1;
+
+    
+    SmartDashboard.putNumber("currentY",currentPose.getY());
+    SmartDashboard.putNumber("currentX",currentPose.getX());
+    SmartDashboard.putNumber("deltaY",deltaY);
+    SmartDashboard.putNumber("deltaX",deltaX);
+    SmartDashboard.putNumber("odo rotation",currentPose.getRotation().getDegrees());
+    SmartDashboard.putNumber("navX rotation",heading);  
+    SmartDashboard.putNumber("absolute angle",absolute);
+    SmartDashboard.putNumber("modified heading",modifiedHeading);
+    SmartDashboard.putNumber("difference 1",difference1);
+    SmartDashboard.putNumber("difference 2",difference2);
+    SmartDashboard.putNumber("findAngle",result);  
+
+
+    return  result;
   }
 
   private static double modifyAxis(double value) {

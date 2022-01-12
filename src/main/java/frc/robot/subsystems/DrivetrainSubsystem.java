@@ -157,6 +157,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d p_pose) {
+    //m_navx.reset();
     m_odometry.resetPosition(p_pose, getGyroscopeRotation());
   }
 
