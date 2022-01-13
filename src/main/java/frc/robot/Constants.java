@@ -68,6 +68,10 @@ public final class Constants {
         public static final double kaVoltSecondsSquaredPerMeter = 0.15;
     
         public static final double kMaxSpeedMetersPerSecond = 3;
+
+        
+        public static final double DriveMaxAccelerationPerPeriodic =  3 / 200 ; //max acceleration: m/s, then, divide by 200 for 200 times per second
+
     }
 
     

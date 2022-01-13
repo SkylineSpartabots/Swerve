@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.TurnConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -31,6 +33,8 @@ public class RobotContainer {
   private LimelightSubsystem m_limelight;
   private final XboxController m_controller = new XboxController(0);
 
+  private double previousSpeed;
+
   private final ProfiledPIDController m_thetaController;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -39,6 +43,7 @@ public class RobotContainer {
     //For CAS PID Profiled alignment
     m_thetaController = new ProfiledPIDController(TurnConstants.kPThetaController, TurnConstants.kIThetaController, TurnConstants.kDThetaController, TurnConstants.kThetaControllerConstraints);
     m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    previousSpeed = 0;
 
     m_drivetrainSubsystem = DrivetrainSubsystem.getInstance();
     m_limelight = LimelightSubsystem.getInstance();
@@ -128,12 +133,30 @@ public class RobotContainer {
       //rot = Math.abs(steering_adjust)>maxSpeed?maxSpeed:steering_adjust;
 
       
-      double thetaFF = m_thetaController.calculate(m_drivetrainSubsystem.getPose().getRotation().getRadians(), heading_error);
-      rot = thetaFF;
+
+      double theta = m_thetaController.calculate(m_drivetrainSubsystem.getPose().getRotation().getRadians(), heading_error);
+      rot = theta;
     }
     
+    //control speed: have variables that track previous instantaneous speed, make sure delta is limited
+    //USE BOTH XSPEED AND YSPEED COMBINED
 
-    m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_drivetrainSubsystem.getGyroscopeRotation()));
+    double speed = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
+    double deltaVelocity = speed-previousSpeed;
+    double factor = 1;
+    if(deltaVelocity > 0){ //acceleration
+      if(deltaVelocity > DriveConstants.DriveMaxAccelerationPerPeriodic){
+        factor = (DriveConstants.DriveMaxAccelerationPerPeriodic +  previousSpeed)/ (speed);
+      }
+    }
+    else if (deltaVelocity<0){//decceleration
+      if(deltaVelocity < -1 * DriveConstants.DriveMaxAccelerationPerPeriodic){
+        factor = (previousSpeed - DriveConstants.DriveMaxAccelerationPerPeriodic)/ (speed);
+      }
+    }
+
+
+    m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed*factor, ySpeed*factor, rot, m_drivetrainSubsystem.getGyroscopeRotation()));
   }
 
   public static void resetOdometryFromLimelight(){
