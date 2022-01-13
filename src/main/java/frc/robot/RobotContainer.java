@@ -3,10 +3,12 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+import frc.robot.Constants.TurnConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Button;
@@ -29,9 +31,14 @@ public class RobotContainer {
   private LimelightSubsystem m_limelight;
   private final XboxController m_controller = new XboxController(0);
 
+  private final ProfiledPIDController m_thetaController;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    //For CAS PID Profiled alignment
+    m_thetaController = new ProfiledPIDController(TurnConstants.kPThetaController, TurnConstants.kIThetaController, TurnConstants.kDThetaController, TurnConstants.kThetaControllerConstraints);
+    m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     m_drivetrainSubsystem = DrivetrainSubsystem.getInstance();
     m_limelight = LimelightSubsystem.getInstance();
@@ -114,12 +121,15 @@ public class RobotContainer {
         
       double tx = findAngle(m_drivetrainSubsystem.getPose(), m_drivetrainSubsystem.getPose().getRotation().getDegrees(), 1, 0);
       double heading_error = tx;
-      double Kp = 0.1;
-      double maxSpeed = 2;
-      double steering_adjust = Kp*heading_error;
+      //double Kp = 0.1;
+      //double maxSpeed = 2;
+     // double steering_adjust = Kp*heading_error;
         //Math.copySign(Math.pow(Math.abs(heading_error), 0.25),heading_error);//multiplies it by the root of the heading error, keeping sign
       //rot = Math.abs(steering_adjust)>maxSpeed?maxSpeed:steering_adjust;
-        rot = steering_adjust;
+
+      
+      double thetaFF = m_thetaController.calculate(m_drivetrainSubsystem.getPose().getRotation().getRadians(), heading_error);
+      rot = thetaFF;
     }
     
 
