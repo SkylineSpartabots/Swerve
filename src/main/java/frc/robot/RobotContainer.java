@@ -33,7 +33,9 @@ public class RobotContainer {
   private LimelightSubsystem m_limelight;
   private final XboxController m_controller = new XboxController(0);
 
-  private double previousSpeed;
+  private double previousXSpeed;
+  private double previousYSpeed;
+  private double previousRotSpeed;
 
   private final ProfiledPIDController m_thetaController;
 
@@ -43,7 +45,9 @@ public class RobotContainer {
     //For CAS PID Profiled alignment
     m_thetaController = new ProfiledPIDController(TurnConstants.kPThetaController, TurnConstants.kIThetaController, TurnConstants.kDThetaController, TurnConstants.kThetaControllerConstraints);
     m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
-    previousSpeed = 0;
+    previousXSpeed = 0;
+    previousYSpeed = 0;
+    previousRotSpeed = 0;
 
     m_drivetrainSubsystem = DrivetrainSubsystem.getInstance();
     m_limelight = LimelightSubsystem.getInstance();
@@ -106,57 +110,47 @@ public class RobotContainer {
     var rot = -modifyAxis(m_controller.getX(GenericHID.Hand.kRight)) * DrivetrainSubsystem.MaxAngularSpeedRadiansPerSecond;
 
     if(modifyAxis(m_controller.getX(GenericHID.Hand.kRight))==0){
-      /*
-      double tx = LimelightSubsystem.getInstance().getXOffset();
-      double heading_error = -tx;
-      double Kp = 0.2;
-      double min_command = 0.05;
-        double steering_adjust = 0.0f;
-        if (tx > 1.0)
-        {
-                steering_adjust = Kp*heading_error - min_command;
-        }
-        else if (tx < 1.0)
-        {
-                steering_adjust = Kp*heading_error + min_command;
-        }
-      rot = steering_adjust;
-      */
-
         
       double tx = findAngle(m_drivetrainSubsystem.getPose(), m_drivetrainSubsystem.getPose().getRotation().getDegrees(), 1, 0);
       double heading_error = tx;
-      //double Kp = 0.1;
+      double Kp = 0.1;
       //double maxSpeed = 2;
-     // double steering_adjust = Kp*heading_error;
+      double steering_adjust = Kp*heading_error;
+      rot = steering_adjust;
         //Math.copySign(Math.pow(Math.abs(heading_error), 0.25),heading_error);//multiplies it by the root of the heading error, keeping sign
-      //rot = Math.abs(steering_adjust)>maxSpeed?maxSpeed:steering_adjust;
+      //rot = Math.abs(steering_adjust)>maxSpeed?maxSpeed:steering_adjust;      
 
-      
-
-      double theta = m_thetaController.calculate(m_drivetrainSubsystem.getPose().getRotation().getRadians(), heading_error);
-      rot = theta;
+      //double theta = m_thetaController.calculate(m_drivetrainSubsystem.getPose().getRotation().getRadians(), heading_error);
+      //rot = theta;
     }
     
     //control speed: have variables that track previous instantaneous speed, make sure delta is limited
-    //USE BOTH XSPEED AND YSPEED COMBINED
 
-    double speed = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
-    double deltaVelocity = speed-previousSpeed;
-    double factor = 1;
-    if(deltaVelocity > 0){ //acceleration
-      if(deltaVelocity > DriveConstants.DriveMaxAccelerationPerPeriodic){
-        factor = (DriveConstants.DriveMaxAccelerationPerPeriodic +  previousSpeed)/ (speed);
-      }
+    double deltaXVelocity = xSpeed-previousXSpeed;
+    double deltaYVelocity = ySpeed-previousYSpeed;
+    double deltaRotVelocity = rot-previousRotSpeed;
+    double newXSpeed = xSpeed;
+    double newYSpeed = ySpeed;
+    double newRotSpeed = rot;
+
+    if(Math.abs(deltaXVelocity) > DriveConstants.DriveMaxAccelerationPerPeriodic ){
+      newXSpeed = previousXSpeed + Math.copySign(DriveConstants.DriveMaxAccelerationPerPeriodic, deltaXVelocity);
     }
-    else if (deltaVelocity<0){//decceleration
-      if(deltaVelocity < -1 * DriveConstants.DriveMaxAccelerationPerPeriodic){
-        factor = (previousSpeed - DriveConstants.DriveMaxAccelerationPerPeriodic)/ (speed);
-      }
+    
+    if(Math.abs(deltaYVelocity) > DriveConstants.DriveMaxAccelerationPerPeriodic ){
+      newYSpeed = previousYSpeed + Math.copySign(DriveConstants.DriveMaxAccelerationPerPeriodic, deltaYVelocity);
     }
+    
+    if(Math.abs(deltaRotVelocity) > DriveConstants.RotationMaxAccelerationPerPeriodic ){
+      newRotSpeed = previousRotSpeed + Math.copySign(DriveConstants.RotationMaxAccelerationPerPeriodic, deltaRotVelocity);
+    }
+    
+    previousXSpeed = newXSpeed;
+    previousYSpeed = newYSpeed;
+    previousRotSpeed = newRotSpeed;
 
 
-    m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed*factor, ySpeed*factor, rot, m_drivetrainSubsystem.getGyroscopeRotation()));
+    m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(newXSpeed, newYSpeed, newRotSpeed, m_drivetrainSubsystem.getGyroscopeRotation()));
   }
 
   public static void resetOdometryFromLimelight(){
@@ -211,7 +205,7 @@ public class RobotContainer {
     SmartDashboard.putNumber("navX rotation",heading);  
     SmartDashboard.putNumber("absolute angle",absolute);
     SmartDashboard.putNumber("findAngle",result);  
-
+    
 
     return  result;
   }
