@@ -116,19 +116,20 @@ public class RobotContainer {
       double Kp = 0.1;
       //double maxSpeed = 2;
       double steering_adjust = Kp*heading_error;
-      rot = steering_adjust;
-        //Math.copySign(Math.pow(Math.abs(heading_error), 0.25),heading_error);//multiplies it by the root of the heading error, keeping sign
+      rot = steering_adjust; //set kp to 0.1
+      //rot=Math.copySign(Math.pow(Math.abs(steering_adjust), 0.75),steering_adjust);//multiplies it by the root of the heading error, keeping sign
       //rot = Math.abs(steering_adjust)>maxSpeed?maxSpeed:steering_adjust;      
 
       //double theta = m_thetaController.calculate(m_drivetrainSubsystem.getPose().getRotation().getRadians(), heading_error);
       //rot = theta;
     }
     
-    //control speed: have variables that track previous instantaneous speed, make sure delta is limited
+    //apply constraints for acceleration and decceleration
 
     double deltaXVelocity = xSpeed-previousXSpeed;
     double deltaYVelocity = ySpeed-previousYSpeed;
-    double deltaRotVelocity = rot-previousRotSpeed;
+    double deltaRotVelocity = Math.abs(rot)-Math.abs(previousRotSpeed);//only controls acceleration but not decceleration
+    //double deltaRotVelocity = (rot)-(previousRotSpeed);
     double newXSpeed = xSpeed;
     double newYSpeed = ySpeed;
     double newRotSpeed = rot;
@@ -141,8 +142,8 @@ public class RobotContainer {
       newYSpeed = previousYSpeed + Math.copySign(DriveConstants.DriveMaxAccelerationPerPeriodic, deltaYVelocity);
     }
     
-    if(Math.abs(deltaRotVelocity) > DriveConstants.RotationMaxAccelerationPerPeriodic ){
-      newRotSpeed = previousRotSpeed + Math.copySign(DriveConstants.RotationMaxAccelerationPerPeriodic, deltaRotVelocity);
+    if(deltaRotVelocity > DriveConstants.RotationMaxAccelerationPerPeriodic ){
+      newRotSpeed = previousRotSpeed + Math.copySign(DriveConstants.RotationMaxAccelerationPerPeriodic, rot-previousRotSpeed);
     }
     
     previousXSpeed = newXSpeed;
@@ -183,20 +184,6 @@ public class RobotContainer {
     if(Math.abs(result)>180){
       result = -Math.copySign(360-Math.abs(result), result);
     }
-    /*
-    double absolute = Math.toDegrees(Math.atan2(deltaY, deltaX));
-    if(absolute>0) absolute -= 180;
-    else if(absolute < 0) absolute += 180;
-
-    
-    
-    double modifiedHeading = heading + 180;
-    absolute += 180;
-    double difference1 = absolute - modifiedHeading;
-    double difference2 = -1 * (difference1 % 180);//modifiedHeading - absolute;
-    double result = Math.abs(difference1)>Math.abs(difference2) ? difference2 : difference1;
-
-    */
     SmartDashboard.putNumber("currentY",currentPose.getY());
     SmartDashboard.putNumber("currentX",currentPose.getX());
     SmartDashboard.putNumber("deltaY",deltaY);
@@ -204,8 +191,7 @@ public class RobotContainer {
     SmartDashboard.putNumber("odo rotation",currentPose.getRotation().getDegrees());
     SmartDashboard.putNumber("navX rotation",heading);  
     SmartDashboard.putNumber("absolute angle",absolute);
-    SmartDashboard.putNumber("findAngle",result);  
-    
+    SmartDashboard.putNumber("findAngle",result);      
 
     return  result;
   }
