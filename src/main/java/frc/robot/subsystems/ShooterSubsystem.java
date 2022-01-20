@@ -38,7 +38,10 @@ public class ShooterSubsystem extends SubsystemBase {
         return velo / ShooterConstants.kFalconVeloRpmFactor;
     }
 
-    public void setMotorPower(double power) {
+    public void setMotorPowerVelocity(double power) {
+        flywheelTalon.set(ControlMode.Velocity, power/10);
+    }
+    public void setMotorPowerPercent(double power) {
         flywheelTalon.set(ControlMode.PercentOutput, power);
     }
     

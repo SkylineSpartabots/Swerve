@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.Constants;
 
 public class SingleShootCommand extends CommandBase{
     private final ShooterSubsystem m_subsystem;
@@ -12,11 +13,12 @@ public class SingleShootCommand extends CommandBase{
 
     private final Timer m_timer = new Timer();
 
-    private final double shooterPower;
-    private final double m_durationPowerOn;
+    private double shooterPower;
+    private final double m_durationPowerOn = 0.75;
+    //replace this value later and put in constants
 
     public double shooterPowerCalc(double distance){
-        //shooterPower = calculations
+        return distance*Constants.ShooterConstants.distanceToVelocity + 5.930;
     }
 
     public SingleShootCommand(double distance){
@@ -31,29 +33,28 @@ public class SingleShootCommand extends CommandBase{
     public void initialize(){
         m_timer.reset();
         m_timer.start();
+        m_subsystem.setMotorPowerVelocity(shooterPower);
     }
 
     @Override
-    private void execute(){
+    public void execute(){
         /*
-        if(getIsBallIntaked){
-            m_subsystem.setMotorPower(shooterPower);
+        if(getIsBallReady){
+            
             }
         }
-
         m_intake needs to be a boolean obtained from the intake subsystem.
         wait about 1.5 seconds for two ball, for one ball 1 second should be enough.
         */
     }
 
     @Override
-    private void end(boolean interrupted){
+    public void end(boolean interrupted){
         m_timer.stop();
     }
 
     @Override
-    private boolean isFinished(){
-        return m_timer.hasElapsed(m_durationPowerOn);
+    public boolean isFinished(){
+        return m_timer.get() >= m_durationPowerOn;
     }
-
 }

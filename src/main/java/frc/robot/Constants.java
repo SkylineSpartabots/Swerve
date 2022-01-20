@@ -111,7 +111,9 @@ public final class Constants {
         public static final double kFlywheetRobotOffset = 0; // Distance between front of shooter to front of robot
         public static final double kGravityAccelConstant = 9.81;
 
-        public static final double kFalconVeloRpmFactor = 0   ;
+        public static final double kFalconVeloRpmFactor = 0;
+        public static final double cargoMassKg = 35.274;
         public static final int kFlywheelMotor = 0;
+        public static final double distanceToVelocity = 0.5379;
     }
 }
