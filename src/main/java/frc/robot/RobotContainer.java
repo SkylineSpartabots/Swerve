@@ -3,12 +3,22 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+<<<<<<< HEAD
 import frc.robot.Constants.FieldConstants;
+=======
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.TurnConstants;
+>>>>>>> 9d4252b5fec91b85bd2ff90399862298b670995e
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+<<<<<<< HEAD
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+=======
+import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
+>>>>>>> 9d4252b5fec91b85bd2ff90399862298b670995e
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -18,7 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 
 
@@ -34,9 +44,21 @@ public class RobotContainer {
   private LimelightSubsystem m_limelight;
   private final XboxController m_controller = new XboxController(0);
 
+  private double previousXSpeed;
+  private double previousYSpeed;
+  private double previousRotSpeed;
+
+  private final ProfiledPIDController m_thetaController;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    //For CAS PID Profiled alignment
+    m_thetaController = new ProfiledPIDController(TurnConstants.kPThetaController, TurnConstants.kIThetaController, TurnConstants.kDThetaController, TurnConstants.kThetaControllerConstraints);
+    m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    previousXSpeed = 0;
+    previousYSpeed = 0;
+    previousRotSpeed = 0;
 
     m_drivetrainSubsystem = DrivetrainSubsystem.getInstance();
     m_limelight = LimelightSubsystem.getInstance();
@@ -105,24 +127,8 @@ public class RobotContainer {
     var rot = -modifyAxis(m_controller.getX(GenericHID.Hand.kRight)) * DrivetrainSubsystem.MaxAngularSpeedRadiansPerSecond;
 
     if(modifyAxis(m_controller.getX(GenericHID.Hand.kRight))==0){
-      /*
-      double tx = LimelightSubsystem.getInstance().getXOffset();
-      double heading_error = -tx;
-      double Kp = 0.2;
-      double min_command = 0.05;
-        double steering_adjust = 0.0f;
-        if (tx > 1.0)
-        {
-                steering_adjust = Kp*heading_error - min_command;
-        }
-        else if (tx < 1.0)
-        {
-                steering_adjust = Kp*heading_error + min_command;
-        }
-      rot = steering_adjust;
-      */
-
         
+<<<<<<< HEAD
       double tx = findAngle(m_drivetrainSubsystem.getPose(), 1, 0);
       double heading_error = -tx;
       double Kp = 0.2;
@@ -137,6 +143,49 @@ public class RobotContainer {
     }
     
     m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_drivetrainSubsystem.getGyroscopeRotation()));
+=======
+      double tx = findAngle(m_drivetrainSubsystem.getPose(), m_drivetrainSubsystem.getPose().getRotation().getDegrees(), 1, 0);
+      double heading_error = tx;
+      double Kp = 0.1;
+      //double maxSpeed = 2;
+      double steering_adjust = Kp*heading_error;
+      rot = steering_adjust; //set kp to 0.1
+      //rot=Math.copySign(Math.pow(Math.abs(steering_adjust), 0.75),steering_adjust);//multiplies it by the root of the heading error, keeping sign
+      //rot = Math.abs(steering_adjust)>maxSpeed?maxSpeed:steering_adjust;      
+
+      //double theta = m_thetaController.calculate(m_drivetrainSubsystem.getPose().getRotation().getRadians(), heading_error);
+      //rot = theta;
+    }
+    
+    //apply constraints for acceleration and decceleration
+
+    double deltaXVelocity = xSpeed-previousXSpeed;
+    double deltaYVelocity = ySpeed-previousYSpeed;
+    double deltaRotVelocity = Math.abs(rot)-Math.abs(previousRotSpeed);//only controls acceleration but not decceleration
+    //double deltaRotVelocity = (rot)-(previousRotSpeed);
+    double newXSpeed = xSpeed;
+    double newYSpeed = ySpeed;
+    double newRotSpeed = rot;
+
+    if(Math.abs(deltaXVelocity) > DriveConstants.DriveMaxAccelerationPerPeriodic ){
+      newXSpeed = previousXSpeed + Math.copySign(DriveConstants.DriveMaxAccelerationPerPeriodic, deltaXVelocity);
+    }
+    
+    if(Math.abs(deltaYVelocity) > DriveConstants.DriveMaxAccelerationPerPeriodic ){
+      newYSpeed = previousYSpeed + Math.copySign(DriveConstants.DriveMaxAccelerationPerPeriodic, deltaYVelocity);
+    }
+    
+    if(deltaRotVelocity > DriveConstants.RotationMaxAccelerationPerPeriodic ){
+      newRotSpeed = previousRotSpeed + Math.copySign(DriveConstants.RotationMaxAccelerationPerPeriodic, rot-previousRotSpeed);
+    }
+    
+    previousXSpeed = newXSpeed;
+    previousYSpeed = newYSpeed;
+    previousRotSpeed = newRotSpeed;
+
+
+    m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(newXSpeed, newYSpeed, newRotSpeed, m_drivetrainSubsystem.getGyroscopeRotation()));
+>>>>>>> 9d4252b5fec91b85bd2ff90399862298b670995e
   }
 
   public static void resetOdometryFromLimelight(){
@@ -185,6 +234,7 @@ public class RobotContainer {
       return 0.0;
     }
   }
+<<<<<<< HEAD
   public static double findAngle(Pose2d currentPose, double toX, double toY){
     double deltaY = (toY - currentPose.getY());
     double deltaX = (toX - currentPose.getX());
@@ -203,6 +253,28 @@ public class RobotContainer {
       //It loops between 0 and 360 degrees
     SmartDashboard.putNumber("CurrentRot", rot);
     return (Math.toDegrees(Math.atan2(deltaY, deltaX)) - currentPose.getRotation().getDegrees());
+=======
+  public double findAngle(Pose2d currentPose, double heading, double toX, double toY){
+    double deltaY = (toY - currentPose.getY());
+    double deltaX = (toX - currentPose.getX());
+    double absolute = Math.toDegrees(Math.atan2(deltaY, deltaX));
+    double angle = currentPose.getRotation().getDegrees();
+
+    double result = absolute - angle;
+    if(Math.abs(result)>180){
+      result = -Math.copySign(360-Math.abs(result), result);
+    }
+    SmartDashboard.putNumber("currentY",currentPose.getY());
+    SmartDashboard.putNumber("currentX",currentPose.getX());
+    SmartDashboard.putNumber("deltaY",deltaY);
+    SmartDashboard.putNumber("deltaX",deltaX);
+    SmartDashboard.putNumber("odo rotation",currentPose.getRotation().getDegrees());
+    SmartDashboard.putNumber("navX rotation",heading);  
+    SmartDashboard.putNumber("absolute angle",absolute);
+    SmartDashboard.putNumber("findAngle",result);      
+
+    return  result;
+>>>>>>> 9d4252b5fec91b85bd2ff90399862298b670995e
   }
 
   private static double modifyAxis(double value) {
