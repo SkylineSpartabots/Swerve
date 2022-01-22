@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.List;
+
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
@@ -63,9 +65,9 @@ public final class Constants {
         // These characterization values MUST be determined either experimentally or theoretically
         // for *your* robot's drive.
         // The SysId tool provides a convenient method for obtaining these values for your robot.
-        public static final double ksVolts = 0.5;
-        public static final double kvVoltSecondsPerMeter = 1;
-        public static final double kaVoltSecondsSquaredPerMeter = 0;
+        public static final double ksVolts = 0.70662;
+        public static final double kvVoltSecondsPerMeter = 0.71989;
+        public static final double kaVoltSecondsSquaredPerMeter = 0.04223;
 
         public static final double kMaxSpeedMetersPerSecond = 3;
     }
@@ -97,5 +99,23 @@ public final class Constants {
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
             new TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+    }
+
+    public static final class FieldConstants{
+        //Meters, degrees
+        public static final double kTargetHeight = 2.36474;
+        public static final double kLensHeight = 2.36474;
+        public static final double kLensAngle = 1;
+
+        public static final Translation2d kTargetTranslation = new Translation2d(0,0);
+        public static final List<Translation2d> kStartingTranslations = List.of(
+            new Translation2d()
+        );
+        public static final List<Translation2d> kReferenceTranslations = List.of(
+            new Translation2d(1, 0),
+            new Translation2d(3, 3)
+        );
+
+        public static final double kMinReferenceError = 0.1;
     }
 }

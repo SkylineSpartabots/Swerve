@@ -2,7 +2,11 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.*;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants;
 
 public class LimelightSubsystem extends SubsystemBase {
     private static LimelightSubsystem instance = null;
@@ -73,13 +77,19 @@ public class LimelightSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("LimelightX", getXOffset());
     SmartDashboard.putNumber("LimelightY", getYOffset());
   }
-  public double getTargetDistance(){
-      return 0;
+  public Translation2d getFieldPositionFromTarget(double radians){
+      double d = getDistance();
+      double x = d * Math.cos(radians - Math.PI);
+      double y = d * Math.sin(radians - Math.PI);
+      SmartDashboard.putNumber("DistanceLimelight", d);
+      SmartDashboard.putNumber("XfromLimelight", x);
+      SmartDashboard.putNumber("YfromLimelight", y);
+      return new Translation2d(x, y);
   }
-    /*public double getDistance() {
-        double x = (Constants.kTargetHeight - Constants.kLensHeight) / 
-            Math.tan(Math.toRadians(Constants.kLensHorizontalAngle + getYOffset()));
+  public double getDistance() {
+        double x = (FieldConstants.kTargetHeight - FieldConstants.kLensHeight) / 
+            Math.tan(Math.toRadians(FieldConstants.kLensAngle + getYOffset()));
         x /= Math.cos(Math.toRadians(Math.abs(getXOffset())));
         return x;
-    }*/
+    }
 }
