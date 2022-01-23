@@ -17,6 +17,10 @@ import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    //timeout for CAN commands and error checking
+    public static final int kTimeOutMs = 10;
+
     public static final class DriveConstants {
         /**
          * The left-to-right distance between the drivetrain wheels

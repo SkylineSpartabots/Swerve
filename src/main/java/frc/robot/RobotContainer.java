@@ -39,7 +39,7 @@ public class RobotContainer {
     m_limelight = LimelightSubsystem.getInstance();
     m_limelight.init();
     m_shooter = ShooterSubsystem.getInstance();
-    m_shooter.init();
+    //m_shooter.init();
 
     m_drivetrainSubsystem.zeroGyroscope();
     // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish

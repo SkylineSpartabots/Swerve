@@ -13,7 +13,7 @@ public class DoubleShootCommand extends SequentialCommandGroup{
             //new indexerPush(),
             new SingleShootCommand(distance),
             //new indexerPush(),
-            new ShooterConstantPowerCommand(distance)
+            new ShooterConstantPowerCommand()
         );/*indexerPush is simply to push the ball into contact with the motor,
         motors will continue moving at velocity speed set by SingleShootCommand(), and will return to normal with ShooterConstantPowerCommand().
         This could run into issues with multiple ShooterConstantPowerCommands layered, will need testing*/
