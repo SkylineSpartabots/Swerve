@@ -17,6 +17,15 @@ import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    // Timeout for CAN commands and error checking
+	public static final int kTimeOutMs = 10;
+    //Climb
+	public static final double kSlideDownToWinchTransitionTime = 0.1;
+	public static final double kSlideDownEncoderTarget = 100;
+	public static final double kHookSlideWaitHeightThreshold = 900;
+	public static final double kClimbMaxHeight = 18800; //18200 sout is op
+
     public static final class DriveConstants {
         /**
          * The left-to-right distance between the drivetrain wheels
