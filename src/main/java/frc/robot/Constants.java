@@ -102,4 +102,6 @@ public final class Constants {
 	public static final double SHOOTER_FLYWHEEL_ANGLE_DEGREES = 0;
 	public static final double FALCON_VELO_RPM_FACTOR = 0;
 	public static final int SHOOTER_FLYWHEEL_MOTOR = 0;
+        public static final int kTimeOutMs = 10;
+
 }
