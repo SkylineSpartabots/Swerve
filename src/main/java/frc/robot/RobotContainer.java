@@ -116,7 +116,7 @@ public class RobotContainer {
       double Kp = 0.1;
       //double maxSpeed = 2;
       double steering_adjust = Kp*heading_error;
-      rot = steering_adjust; //set kp to 0.1
+      //rot = steering_adjust; //set kp to 0.1
       //rot=Math.copySign(Math.pow(Math.abs(steering_adjust), 0.75),steering_adjust);//multiplies it by the root of the heading error, keeping sign
       //rot = Math.abs(steering_adjust)>maxSpeed?maxSpeed:steering_adjust;      
 
@@ -126,24 +126,33 @@ public class RobotContainer {
     
     //apply constraints for acceleration and decceleration
 
-    double deltaXVelocity = xSpeed-previousXSpeed;
-    double deltaYVelocity = ySpeed-previousYSpeed;
+    double deltaXVelocity = Math.abs(xSpeed)-Math.abs(previousXSpeed);
+    double deltaYVelocity = Math.abs(ySpeed)-Math.abs(previousYSpeed);
     double deltaRotVelocity = Math.abs(rot)-Math.abs(previousRotSpeed);//only controls acceleration but not decceleration
     //double deltaRotVelocity = (rot)-(previousRotSpeed);
     double newXSpeed = xSpeed;
     double newYSpeed = ySpeed;
     double newRotSpeed = rot;
 
-    if(Math.abs(deltaXVelocity) > DriveConstants.DriveMaxAccelerationPerPeriodic ){
-      newXSpeed = previousXSpeed + Math.copySign(DriveConstants.DriveMaxAccelerationPerPeriodic, deltaXVelocity);
+    if(deltaXVelocity > DriveConstants.DriveMaxAccelerationPerPeriodic ){
+      newXSpeed = previousXSpeed + Math.copySign(DriveConstants.DriveMaxAccelerationPerPeriodic, xSpeed-previousXSpeed);
+    }
+    else if(deltaXVelocity < -1 * DriveConstants.DriveMaxAccelerationPerPeriodic ){
+      newXSpeed = previousXSpeed + Math.copySign(DriveConstants.DriveMaxDecelerationPerPeriodic, xSpeed-previousXSpeed);
     }
     
-    if(Math.abs(deltaYVelocity) > DriveConstants.DriveMaxAccelerationPerPeriodic ){
-      newYSpeed = previousYSpeed + Math.copySign(DriveConstants.DriveMaxAccelerationPerPeriodic, deltaYVelocity);
+    if(deltaYVelocity > DriveConstants.DriveMaxAccelerationPerPeriodic ){
+      newYSpeed = previousYSpeed + Math.copySign(DriveConstants.DriveMaxAccelerationPerPeriodic, ySpeed-previousYSpeed);
     }
-    
+    else if(deltaYVelocity < -1 * DriveConstants.DriveMaxAccelerationPerPeriodic ){
+      newYSpeed = previousYSpeed + Math.copySign(DriveConstants.DriveMaxDecelerationPerPeriodic, ySpeed-previousYSpeed);
+    }
+                             
     if(deltaRotVelocity > DriveConstants.RotationMaxAccelerationPerPeriodic ){
       newRotSpeed = previousRotSpeed + Math.copySign(DriveConstants.RotationMaxAccelerationPerPeriodic, rot-previousRotSpeed);
+    }
+    else if(deltaRotVelocity < -1 * DriveConstants.RotationMaxAccelerationPerPeriodic ){
+      //newRotSpeed = previousRotSpeed + Math.copySign(DriveConstants.RotationMaxAccelerationPerPeriodic, rot-previousRotSpeed);
     }
     
     previousXSpeed = newXSpeed;
@@ -151,7 +160,7 @@ public class RobotContainer {
     previousRotSpeed = newRotSpeed;
 
 
-    m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(newXSpeed, newYSpeed, newRotSpeed, m_drivetrainSubsystem.getGyroscopeRotation()));
+    m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_drivetrainSubsystem.getGyroscopeRotation()));
   }
 
   public static void resetOdometryFromLimelight(){
