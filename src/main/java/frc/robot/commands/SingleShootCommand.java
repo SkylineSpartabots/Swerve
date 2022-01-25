@@ -25,8 +25,7 @@ public class SingleShootCommand extends CommandBase{
         m_subsystem = ShooterSubsystem.getInstance();
         addRequirements(m_subsystem);
         shooterPower = shooterPowerCalc(distance);
-
-
+        
     }
 
     @Override

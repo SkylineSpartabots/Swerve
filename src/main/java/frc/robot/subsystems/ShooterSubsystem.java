@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -15,6 +16,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.lib.drivers.LazyTalonFX;
 import frc.lib.drivers.TalonFXFactory;
+import frc.lib.drivers.*;
+import java.util.ArrayList;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.drivers.LazyTalonSRX;
+import frc.lib.drivers.PheonixUtil;
+import frc.lib.drivers.TalonSRXFactory;
+import frc.lib.drivers.TalonSRXUtil;
+import frc.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
     private static ShooterSubsystem instance = null;
@@ -42,19 +60,36 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     private ShooterSubsystem() {
-        mMasterShooter = TalonFXFactory.createDefaultFalcon("Left Shooter Motor", Ports.SHOOTER_LEFT_SHOOT_ID);
-        configMasterForShooter(mMasterShooter, InvertType.InvertMotorOutput, false);
+        mMasterShooter = TalonFXFactory.createDefaultFalcon("Left Shooter Motor", Constants.ShooterConstants.MASTER_SHOOTER_MOTOR);
+
+        configMasterForShooter(mMasterShooter, InvertType.InvertMotorOutput, true);
 
 
-        mSlaveShooter = TalonFXFactory.createSlaveFalcon("Right Shooter Motor", Ports.SHOOTER_RIGHT_SHOOT_ID, Ports.SHOOTER_LEFT_SHOOT_ID);
-        configFalconForShooter(mSlaveShooter, InvertType.OpposeMaster);
+        mSlaveShooter = TalonFXFactory.createSlaveFalcon("Right Shooter Motor", Constants.ShooterConstants.SLAVE_SHOOTER_MOTOR, Constants.ShooterConstants.MASTER_SHOOTER_MOTOR);
+        configFalconForShooter(mSlaveShooter, InvertType.FollowMaster);
         mSlaveShooter.setMaster(mMasterShooter);
-        
+
         SmartDashboard.putNumber("Shooter kP", 0.0);
         SmartDashboard.putNumber("Shooter kI", 0.000022);
         SmartDashboard.putNumber("Shooter kD", 0.0);
         SmartDashboard.putNumber("Shooter kF", 0.048000);
+    }
 
+    private void configMasterForShooter(LazyTalonFX talon, InvertType inversion, boolean sensorPhase){
+        configureShooterMotor(talon, inversion);
+    }
+
+    private void configureShooterMotor (LazyTalonFX talon, InvertType inversion){
+        talon.setInverted(inversion);
+        PheonixUtil.checkError(talon.configVoltageCompSaturation(12.0, Constants.kTimeOutMs),
+            talon.getName() + " failed to set voltage compensation", true);
+        talon.enableVoltageCompensation(true);
+        talon.setNeutralMode(NeutralMode.Coast);
+    }
+
+    private void configFalconForShooter(LazyTalonFX falcon, InvertType inversion) {
+        falcon.setInverted(inversion);
+        falcon.setNeutralMode(NeutralMode.Coast);
     }
 
     private double rawVeloToRpm(double velo) {
@@ -62,10 +97,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setMotorPowerVelocity(double power) {
-        flywheelTalon.set(ControlMode.Velocity, power/10);
+        mMasterShooter.set(ControlMode.Velocity, power/10);
     }
+
     public void setMotorPowerPercent(double power) {
-        flywheelTalon.set(ControlMode.PercentOutput, power);
+        mMasterShooter.set(ControlMode.PercentOutput, power);
     }
     
     private ShuffleboardTab debugTab = Shuffleboard.getTab("Shooter");
@@ -74,9 +110,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        table.getEntry("Flywheel Talon Velocity").setDouble(flywheelTalon.getSelectedSensorVelocity());
-        table.getEntry("Flywheel Talon Power").setDouble(flywheelTalon.getMotorOutputPercent());
-        table.getEntry("Flywheel RPM").setDouble(rawVeloToRpm(flywheelTalon.getSelectedSensorVelocity()));
+        table.getEntry("Flywheel Talon Velocity").setDouble(mMasterShooter.getSelectedSensorVelocity());
+        table.getEntry("Flywheel Talon Power").setDouble(mMasterShooter.getMotorOutputPercent());
+        table.getEntry("Flywheel RPM").setDouble(rawVeloToRpm(mMasterShooter.getSelectedSensorVelocity()));
         table.getEntry("Shooter On?").setBoolean(true);
         table.getEntry("Shooter Subsystem").setValue(ShooterSubsystem.instance);
     }
@@ -86,12 +122,3 @@ public class ShooterSubsystem extends SubsystemBase {
         this.periodic();
     }
 }
-
-    private void configureShooterMotor (LazyTalonSRX talon, InvertType inversion){
-        talon.setInverted(inversion);
-        PheonixUtil.checkError(talon.configVoltageCompSaturation(12.0, Constants.kTimeOutMs),
-            talon.getName() + " failed to set voltage compensation", true);
-        talon.enableVoltageCompensation(true);
-        talon.setNeutralMode(NeutralMode.Coast);
-        TalonSRXUtil.setCurrentLimit(talon, 25);
-    }

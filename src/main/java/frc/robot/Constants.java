@@ -110,6 +110,9 @@ public final class Constants {
     }
 
     public static final class ShooterConstants {
+        public static final int MASTER_SHOOTER_MOTOR = 2;
+        public static final int SLAVE_SHOOTER_MOTOR = 3;
+
         public static final double kFlywheelAngle = 0;
         public static final double kFlywheelHeight = 0;
         public static final double kFlywheetRobotOffset = 0; // Distance between front of shooter to front of robot

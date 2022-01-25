@@ -14,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 
 import frc.lib.util.TelemetryUtil;
 import frc.lib.util.TelemetryUtil.PrintStyle;
+import frc.robot.Constants;
 
 /**
  * Add your docs here.
@@ -22,11 +23,10 @@ public class TalonFXUtil {
 
     public synchronized static void setSupplyCurrentLimit(final LazyTalonFX falcon, int amps) {
         SupplyCurrentLimitConfiguration supplyCurrent = new SupplyCurrentLimitConfiguration(true, amps, amps, 0);
-        
         PheonixUtil.checkError(falcon.configSupplyCurrentLimit(supplyCurrent), 
             falcon.getName() + " failed to set supply current limit", true);
     }
-
+    
     public synchronized static void setStatorCurrentLimit(final LazyTalonFX falcon, int amps) {
         StatorCurrentLimitConfiguration statorCurrent = new StatorCurrentLimitConfiguration(true, amps, amps, 0);
 
