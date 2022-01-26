@@ -108,7 +108,7 @@ public class RobotContainer {
     // mathematics). Xbox controllers return positive values when you pull to
     // the right by default.
     var rot = -modifyAxis(m_controller.getRightX()) * DrivetrainSubsystem.MaxAngularSpeedRadiansPerSecond;
-
+/*
     if(modifyAxis(m_controller.getRightX())==0){
         
       double tx = findAngle(m_drivetrainSubsystem.getPose(), m_drivetrainSubsystem.getPose().getRotation().getDegrees(), 1, 0);
@@ -150,8 +150,8 @@ public class RobotContainer {
     previousYSpeed = newYSpeed;
     previousRotSpeed = newRotSpeed;
 
-
-    m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(newXSpeed, newYSpeed, newRotSpeed, m_drivetrainSubsystem.getGyroscopeRotation()));
+*/
+    m_drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_drivetrainSubsystem.getGyroscopeRotation()));
   }
 
   public static void resetOdometryFromLimelight(){
