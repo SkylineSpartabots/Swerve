@@ -99,6 +99,10 @@ public final class Constants {
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
 
+    public static final class IntakeConstants {
+        public static final int INTAKE_MOTOR_PORT = 0;
+    }
+
 	public static final double SHOOTER_FLYWHEEL_ANGLE_DEGREES = 0;
 	public static final double FALCON_VELO_RPM_FACTOR = 0;
 	public static final int SHOOTER_FLYWHEEL_MOTOR = 0;
