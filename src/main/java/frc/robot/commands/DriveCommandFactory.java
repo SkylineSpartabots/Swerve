@@ -6,9 +6,9 @@ import static frc.robot.Constants.*;
 
 import java.util.List;
 
-import edu.wpi.first.wpilibj.geometry.*;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.Command;
 
 
