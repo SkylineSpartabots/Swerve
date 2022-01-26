@@ -1,11 +1,13 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.drivers.LazyTalonFX;
 import frc.lib.drivers.LazyTalonSRX;
 import frc.lib.drivers.PheonixUtil;
+import frc.lib.drivers.TalonFXFactory;
 import frc.lib.drivers.TalonSRXUtil;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -20,7 +22,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private ShuffleboardTab debugTab = Shuffleboard.getTab("Intake");
 
     //hardware
-    private final LazyTalonFX mInnerIntakeMotor, mOuterIntakeMotor;
+    private final LazyTalonFX m_IntakeMotor;
 
     //control states
     private boolean mStateChanged = false;
@@ -34,21 +36,20 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public IntakeSubsystem() {
-        mInnerIntakeMotor = null; // FIXME -  don't have ports, so im setting them to null for now
-        mOuterIntakeMotor = null; // good job build
+        m_IntakeMotor = TalonFXFactory.createDefaultFalcon("Shooter Motor", Constants.IntakeConstants.INTAKE_MOTOR_PORT);
+		configureMotor(m_IntakeMotor, InvertType.None);
     }
 
-    private void configureMotor(LazyTalonSRX mTalon, InvertType inversion) {
-        mTalon.setInverted(inversion);
-        PheonixUtil.checkError(mTalon.configVoltageCompSaturation(12.0, Constants.kTimeOutMs),
-                mTalon.getName() + " failed to set voltage compensation", true);
-        PheonixUtil.checkError(mTalon.configVoltageMeasurementFilter(32, Constants.kTimeOutMs),
-                mTalon.getName() + " failed to set voltage meas. filter", true);
-        mTalon.enableVoltageCompensation(true);
+    private void configureMotor(LazyTalonFX m_IntakeMotor2, InvertType inversion) {
+        m_IntakeMotor2.setInverted(inversion);
+        PheonixUtil.checkError(m_IntakeMotor2.configVoltageCompSaturation(12.0, Constants.kTimeOutMs),
+                m_IntakeMotor2.getName() + " failed to set voltage compensation", true);
+        m_IntakeMotor2.enableVoltageCompensation(true);
+        m_IntakeMotor2.setNeutralMode(NeutralMode.Coast);
+    }
 
-        TalonSRXUtil.setCurrentLimit(mTalon, 25);
-
-        mTalon.setNeutralMode(NeutralMode.Coast);
+    public void setIntakeSpeed(double speed) {
+        m_IntakeMotor.set(ControlMode.PercentOutput, speed);
     }
 
     @Override
