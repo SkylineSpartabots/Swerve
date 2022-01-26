@@ -123,4 +123,9 @@ public final class Constants {
         public static final int kFlywheelMotor = 0;
         public static final double distanceToVelocity = 0.5379;
     }
+
+    public static final class IndexerConstants {
+        public static final int INDEXER_MOTOR = 9;
+        public static final double indexerSpeedPercent = 0.3;
+    }
 }

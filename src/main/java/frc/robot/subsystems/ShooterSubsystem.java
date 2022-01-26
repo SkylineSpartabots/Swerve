@@ -60,12 +60,12 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     private ShooterSubsystem() {
-        mMasterShooter = TalonFXFactory.createDefaultFalcon("Left Shooter Motor", Constants.ShooterConstants.MASTER_SHOOTER_MOTOR);
+        mMasterShooter = TalonFXFactory.createDefaultFalcon("Master Shooter Motor", Constants.ShooterConstants.MASTER_SHOOTER_MOTOR);
 
         configMasterForShooter(mMasterShooter, InvertType.InvertMotorOutput, true);
 
 
-        mSlaveShooter = TalonFXFactory.createSlaveFalcon("Right Shooter Motor", Constants.ShooterConstants.SLAVE_SHOOTER_MOTOR, Constants.ShooterConstants.MASTER_SHOOTER_MOTOR);
+        mSlaveShooter = TalonFXFactory.createSlaveFalcon("Slave Shooter Motor", Constants.ShooterConstants.SLAVE_SHOOTER_MOTOR, Constants.ShooterConstants.MASTER_SHOOTER_MOTOR);
         configFalconForShooter(mSlaveShooter, InvertType.FollowMaster);
         mSlaveShooter.setMaster(mMasterShooter);
 
