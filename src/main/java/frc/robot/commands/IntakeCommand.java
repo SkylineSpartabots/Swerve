@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class IntakeCommand extends CommandBase {
@@ -31,6 +32,7 @@ public class IntakeCommand extends CommandBase {
 	@Override
 	public void end(boolean interrupted) {
 		m_timer.stop();
+		m_subsystem.setIntakeSpeed(Constants.IntakeConstants.kStopIntake);
 	}
 
 	@Override

@@ -103,6 +103,7 @@ public final class Constants {
         public static final int INTAKE_MOTOR_PORT = 0;
         public static final double kIntakeOutSpeed = -0.5;
         public static final double kIntakeInSpeed = 0.5;
+        public static final double kStopIntake = 0; 
     }
 
 	public static final double SHOOTER_FLYWHEEL_ANGLE_DEGREES = 0;
