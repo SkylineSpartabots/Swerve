@@ -71,4 +71,8 @@ public final class Constants {
         public static final int INDEXER_MOTOR = 9;
         public static final double indexerSpeedPercent = 0.3;
     }
+
+    public static final class ClimbConstants {
+        public static final double kClimbMaxHeight = 18800;
+    }
 }
