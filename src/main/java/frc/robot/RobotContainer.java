@@ -3,8 +3,12 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
+
+import java.lang.ModuleLayer.Controller;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -15,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
+import frc.lib.controllers.*;
 
 
 /**
@@ -27,7 +32,9 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private DrivetrainSubsystem m_drivetrainSubsystem;
   private LimelightSubsystem m_limelight;
+  private ClimbSubsystem m_climbSubsystem;
   private final XboxController m_controller = new XboxController(0);
+  private final Xbox m_XboxController = new Xbox(1);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -35,6 +42,7 @@ public class RobotContainer {
 
     m_drivetrainSubsystem = DrivetrainSubsystem.getInstance();
     m_limelight = LimelightSubsystem.getInstance();
+    m_climbSubsystem = ClimbSubsystem.getInstance();
     m_limelight.init();
 
     m_drivetrainSubsystem.zeroGyroscope();
@@ -67,6 +75,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     new Button(m_controller::getBackButton).whenPressed(m_drivetrainSubsystem::zeroGyroscope);
+    // new Button(m_XboxController::getRawButton(-1)).whenPressed(m_climbSubsystem::)
     // new Button(m_controller::getAButton).whenPressed(m_limelight::init);
     // new Button(m_controller::getXButton).whenPressed();
     // new Button(m_controller::getYButton).whenPressed(robot::robotInit);

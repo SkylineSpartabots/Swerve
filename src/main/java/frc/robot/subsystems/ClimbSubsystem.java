@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.Constants;
 import frc.robot.Ports;
+import frc.robot.subsystems.Climb.ClimbControlState;
 
 public class ClimbSubsystem extends SubsystemBase {
     private static ClimbSubsystem mInstance = null;
@@ -141,7 +142,23 @@ public class ClimbSubsystem extends SubsystemBase {
         
         setWinchSpeed(desiredState.winchSpeed);
     }
+    
+    public void raiseHook() {
+        conformToState(ClimbControlState.RAISE_HOOK);
+    }
+    
+    public void off() {
+        conformToState(ClimbControlState.OFF);
+    }
 
+    // public void lowerHook() {
+    //     conformToState(ClimbControlState.LOWER_HOOK);
+    // }
+    
+    public void winchUp() {
+        conformToState(ClimbControlState.WINCH_UP); 
+    }
+    
     @Override
     public void periodic() {
         synchronized(ClimbSubsystem.this) {

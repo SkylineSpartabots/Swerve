@@ -112,7 +112,5 @@ public final class Constants {
             new TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
-    public static final int kTimeOutMs = 10;
-    public static final double kClimbMaxHeight = 18800;
     public static final double kDriveWheelDiameter = 6.0;
 }
