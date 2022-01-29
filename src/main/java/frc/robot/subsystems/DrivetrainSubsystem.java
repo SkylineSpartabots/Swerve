@@ -25,6 +25,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.*;
 
 public class DrivetrainSubsystem extends SubsystemBase {
+
+  private static DrivetrainSubsystem m_instance = null;
+  public static DrivetrainSubsystem getInstance(){
+          if (m_instance == null) {
+                m_instance = new DrivetrainSubsystem();
+          }
+
+          return m_instance;
+  }
+
+
   /**
    * The maximum voltage that will be delivered to the drive motors.
    * <p>

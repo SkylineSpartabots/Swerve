@@ -13,6 +13,10 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    //timeout for CAN commands and error checking
+    public static final int kTimeOutMs = 10;
+
     /**
      * The left-to-right distance between the drivetrain wheels
      *
@@ -47,4 +51,24 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 7; // FIXME Set back right steer motor ID
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 11; // FIXME Set back right steer encoder ID
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(157.2363); // FIXME Measure and set back right steer offset
+
+    public static final class ShooterConstants {
+        public static final int MASTER_SHOOTER_MOTOR = 2;
+        public static final int SLAVE_SHOOTER_MOTOR = 3;
+
+        public static final double kFlywheelAngle = 0;
+        public static final double kFlywheelHeight = 0;
+        public static final double kFlywheetRobotOffset = 0; // Distance between front of shooter to front of robot
+        public static final double kGravityAccelConstant = 9.81;
+
+        public static final double kFalconVeloRpmFactor = 0;
+        public static final double cargoMassKg = 35.274;
+        public static final int kFlywheelMotor = 0;
+        public static final double distanceToVelocity = 0.5379;
+    }
+
+    public static final class IndexerConstants {
+        public static final int INDEXER_MOTOR = 9;
+        public static final double indexerSpeedPercent = 0.3;
+    }
 }
