@@ -7,19 +7,17 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.drivers.*;
-import frc.robot.Constants;
+import frc.lib.drivers.LazyTalonFX;
 
 
 public class IntakeSubsystem extends SubsystemBase {
     private static IntakeSubsystem mInstance = null;
     private static Solenoid solenoid;
-    private static LazyTalonFX leftTalon;
-    private static LazyTalonFX rightTalon;
+    private static LazyTalonFX mTalon;
+    private static LazyTalonFX sTalon;
     private IntakeControlState mCurrentState = IntakeControlState.OFF;
 
     public static IntakeSubsystem getInstance() {
@@ -28,8 +26,6 @@ public class IntakeSubsystem extends SubsystemBase {
         }
         return mInstance;
     }
-
-
 
 
     public enum IntakeControlState {
@@ -43,5 +39,8 @@ public class IntakeSubsystem extends SubsystemBase {
             this.intakeSpeed = intakeSpeed;
         }
 
+        public void setIntakeSpeed(double speed) {
+            mTalon.set(ControlMode.PercentOutput, speed);
+        }
     }
 }
