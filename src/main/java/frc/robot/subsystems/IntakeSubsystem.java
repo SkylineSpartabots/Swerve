@@ -19,7 +19,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
     //debug
     private final boolean debug = false;
-    private ShuffleboardTab debugTab = Shuffleboard.getTab("Intake");
 
     //hardware
     private final LazyTalonFX m_IntakeMotor;
@@ -52,9 +51,15 @@ public class IntakeSubsystem extends SubsystemBase {
         m_IntakeMotor.set(ControlMode.PercentOutput, speed);
     }
 
+    private ShuffleboardTab debugTab = Shuffleboard.getTab("Intake");
+    private NetworkTableInstance tableInstance = NetworkTableInstance.getDefault();
+    private NetworkTable table = tableInstance.getTable("Intake");
+
     @Override
     public void periodic() {
-        debugTab.add("Test", "Test");
+        table.getEntry("Intake Supply Current").setDouble(m_IntakeMotor.getSupplyCurrent());
+        table.getEntry("Intake Stator Current").setDouble(m_IntakeMotor.getStatorCurrent());
+        table.getEntry("Intake Supply Current").setDouble(m_IntakeMotor.getLastSet());
     }
 
     @Override
