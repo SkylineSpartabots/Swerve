@@ -1,64 +1,47 @@
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2018-2019 FIRST. All Rights Reserved.                        */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
+
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.drivers.LazyTalonFX;
-import frc.lib.drivers.LazyTalonSRX;
-import frc.lib.drivers.PheonixUtil;
-import frc.lib.drivers.TalonFXFactory;
-import frc.lib.drivers.TalonSRXUtil;
+import frc.lib.drivers.*;
 import frc.robot.Constants;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
 
 public class IntakeSubsystem extends SubsystemBase {
-
-    private static IntakeSubsystem instance = null;
-
-    //debug
-    private final boolean debug = false;
-    private ShuffleboardTab debugTab = Shuffleboard.getTab("Intake");
-
-    //hardware
-    private final LazyTalonFX m_IntakeMotor;
-
-    //control states
-    private boolean mStateChanged = false;
-    private double mStateChangeTimestamp = 0;
+    private static IntakeSubsystem mInstance = null;
+    private static Solenoid solenoid;
+    private static LazyTalonFX leftTalon;
+    private static LazyTalonFX rightTalon;
+    private IntakeControlState mCurrentState = IntakeControlState.OFF;
 
     public static IntakeSubsystem getInstance() {
-        if (instance == null) {
-            instance = new IntakeSubsystem();
+        if (mInstance == null) {
+            mInstance = new IntakeSubsystem();
         }
-        return instance;
+        return mInstance;
     }
 
-    public IntakeSubsystem() {
-        m_IntakeMotor = TalonFXFactory.createDefaultFalcon("Shooter Motor", Constants.IntakeConstants.INTAKE_MOTOR_PORT);
-		configureMotor(m_IntakeMotor, InvertType.None);
-    }
 
-    private void configureMotor(LazyTalonFX m_IntakeMotor2, InvertType inversion) {
-        m_IntakeMotor2.setInverted(inversion);
-        PheonixUtil.checkError(m_IntakeMotor2.configVoltageCompSaturation(12.0, Constants.kTimeOutMs),
-                m_IntakeMotor2.getName() + " failed to set voltage compensation", true);
-        m_IntakeMotor2.enableVoltageCompensation(true);
-        m_IntakeMotor2.setNeutralMode(NeutralMode.Coast);
-    }
 
-    public void setIntakeSpeed(double speed) {
-        m_IntakeMotor.set(ControlMode.PercentOutput, speed);
-    }
 
-    @Override
-    public void periodic() {
-        debugTab.add("Test", "Test");
-    }
+    public enum IntakeControlState {
+        OFF(0.0, false),
+        ON(1.0, true);
+        private boolean deployIntake = false;
+        private double intakeSpeed = 0.0;
 
-    @Override
-    public void simulationPeriodic() {
-        this.periodic();
+        private IntakeControlState(double intakeSpeed, boolean deployIntake) {
+            this.deployIntake = deployIntake;
+            this.intakeSpeed = intakeSpeed;
+        }
+
     }
 }
