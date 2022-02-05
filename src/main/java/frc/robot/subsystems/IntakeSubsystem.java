@@ -17,15 +17,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private static IntakeSubsystem instance = null;
 
-    //debug
-    private final boolean debug = false;
-
     //hardware
     private final LazyTalonFX m_IntakeMotor;
-
-    //control states
-    private boolean mStateChanged = false;
-    private double mStateChangeTimestamp = 0;
 
     public static IntakeSubsystem getInstance() {
         if (instance == null) {
